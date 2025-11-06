@@ -1,0 +1,284 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pixolve.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:converters="using:Pixolve.Desktop.Converters"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="650"
+        x:Class="Pixolve.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/pixolve-logo.ico"
+        Title="Pixolve - Moderner Bild-Konverter"
+        Width="900" Height="650"
+        MinWidth="800" MinHeight="600"
+        DragDrop.AllowDrop="True">
+
+    <Window.Resources>
+        <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+    </Window.Resources>
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Pixolve" FontSize="28" FontWeight="Bold"/>
+            <TextBlock Text="Moderner plattformübergreifender Bild-Konverter" FontSize="14" Opacity="0.7"/>
+        </StackPanel>
+
+        <!-- Source Selection & Settings -->
+        <Grid Grid.Row="1" Margin="0,0,0,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Source Path -->
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    BorderBrush="{DynamicResource SystemAccentColor}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12"
+                    Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Quellordner:" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBox Grid.Column="1" Text="{Binding SourcePath}" Watermark="Ordnerpfad eingeben oder durchsuchen..." VerticalAlignment="Center"/>
+                    <Button Grid.Column="2" Content="Durchsuchen" Command="{Binding BrowseFolderCommand}" Margin="8,0,0,0" Padding="16,8"/>
+                    <Button Grid.Column="3" Content="Bilder laden" Command="{Binding LoadImagesCommand}" Margin="8,0,0,0" Padding="16,8"/>
+                </Grid>
+            </Border>
+
+            <!-- Settings Panel - Responsive Grid Layout -->
+            <Border Grid.Row="1" Grid.Column="0"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12"
+                    Margin="0,0,8,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="180"/>
+                        <ColumnDefinition Width="*" MinWidth="180"/>
+                        <ColumnDefinition Width="*" MinWidth="180"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Format & Qualität -->
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock Text="FORMAT &amp; QUALITÄT" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Format:" FontSize="11" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding AvailableFormats}"
+                                  SelectedItem="{Binding SelectedFormatOption}"
+                                  FontSize="11"
+                                  HorizontalAlignment="Stretch"
+                                  Margin="0,0,0,8">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Text="Qualität:" FontSize="11" Margin="0,0,0,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="35"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="0" Maximum="100" Value="{Binding Quality}" TickFrequency="5" IsSnapToTickEnabled="True"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Quality}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Größe & Ausgabe -->
+                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                        <TextBlock Text="GRÖSSE &amp; AUSGABE" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="Max Pixel:" FontSize="11" Margin="0,0,0,4"/>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="35"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="512" Maximum="4096" Value="{Binding MaxPixelSize}" TickFrequency="256" IsSnapToTickEnabled="True"/>
+                            <TextBlock Grid.Column="1" Text="{Binding MaxPixelSize}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
+                        </Grid>
+
+                        <TextBlock Text="Ausgabeverzeichnis:" FontSize="11" Margin="0,0,0,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding OutputDirectory}" Watermark="'converted'" FontSize="11" Margin="0,0,4,0"/>
+                            <Button Grid.Column="1" Content="..." Command="{Binding BrowseOutputFolderCommand}" Width="30" Padding="4"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Optionen -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="OPTIONEN" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+                        <CheckBox IsChecked="{Binding EnableResizing}" Content="Bildgröße anpassen" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding OverwriteExisting}" Content="Dateien überschreiben" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding PreserveTimestamp}" Content="Zeitstempel beibehalten" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding IncludeSubfolders}" Content="Unterordner einbeziehen" FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Action Buttons -->
+            <Border Grid.Row="1" Grid.Column="1"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="12"
+                    Width="200">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Aktionen" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <Button Content="Alle konvertieren" Command="{Binding ConvertImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
+                    <Button Content="Abbrechen" Command="{Binding CancelConversionCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding IsConverting}"/>
+                    <Button Content="Liste leeren" Command="{Binding ClearImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Image List DataGrid -->
+        <Border Grid.Row="2"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Margin="0,0,0,12">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <DataGrid ItemsSource="{Binding ImageFiles}"
+                          AutoGenerateColumns="False"
+                          GridLinesVisibility="All"
+                          IsReadOnly="True"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"
+                          RowHeight="60"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Vorschau" Width="70">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding ThumbnailData, Converter={StaticResource ByteArrayToImageConverter}}"
+                                       Width="50" Height="50"
+                                       Stretch="Uniform"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Dateiname" Binding="{Binding FileName}" Width="2*" MinWidth="150" MaxWidth="400"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" MinWidth="100" MaxWidth="120"/>
+                    <DataGridTextColumn Header="Vorher" Binding="{Binding FileSizeBeforeFormatted}" Width="*" MinWidth="70" MaxWidth="90"/>
+                    <DataGridTextColumn Header="Nachher" Binding="{Binding FileSizeAfterFormatted}" Width="*" MinWidth="70" MaxWidth="90"/>
+                    <DataGridTextColumn Header="%" Binding="{Binding CompressionRatioFormatted}" Width="*" MinWidth="50" MaxWidth="70"/>
+                    <DataGridTextColumn Header="Pixel" Binding="{Binding PixelSizeBefore}" Width="*" MinWidth="90" MaxWidth="120"/>
+                    <DataGridTemplateColumn Header="⚙" Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="⚙"
+                                        Padding="8,4"
+                                        FontSize="14"
+                                        HorizontalContentAlignment="Center"
+                                        ToolTip.Tip="Individuelle Einstellungen">
+                                    <Button.Flyout>
+                                        <Flyout Placement="Bottom">
+                                            <StackPanel Width="250" Spacing="8">
+                                                <TextBlock Text="Individuelle Einstellungen" FontWeight="Bold" Margin="0,0,0,8"/>
+
+                                                <TextBlock Text="Format (leer = global):" FontSize="11"/>
+                                                <ComboBox SelectedIndex="{Binding CustomTargetFormat}" FontSize="11">
+                                                    <ComboBoxItem Content="(Global)"/>
+                                                    <ComboBoxItem Content="WebP"/>
+                                                    <ComboBoxItem Content="PNG"/>
+                                                    <ComboBoxItem Content="JPEG"/>
+                                                    <ComboBoxItem Content="AVIF"/>
+                                                </ComboBox>
+
+                                                <TextBlock Text="Qualität (leer = global):" FontSize="11" Margin="0,4,0,0"/>
+                                                <TextBox Text="{Binding CustomQuality}" Watermark="Global" FontSize="11"/>
+
+                                                <TextBlock Text="Max Pixel (leer = global):" FontSize="11" Margin="0,4,0,0"/>
+                                                <TextBox Text="{Binding CustomMaxPixelSize}" Watermark="Global" FontSize="11"/>
+
+                                                <TextBlock Text="Hinweis: Leere Felder verwenden die globalen Einstellungen."
+                                                           FontSize="10"
+                                                           Opacity="0.7"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,8,0,0"/>
+                                            </StackPanel>
+                                        </Flyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="" Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="✕"
+                                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).RemoveImageCommand}"
+                                        CommandParameter="{Binding}"
+                                        Padding="8,4"
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        HorizontalContentAlignment="Center"
+                                        ToolTip.Tip="Entfernen"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Progress Bar -->
+        <StackPanel Grid.Row="3" Margin="0,0,0,8">
+            <ProgressBar Minimum="0" Maximum="{Binding ProgressMaximum}" Value="{Binding ProgressValue}" Height="8" IsIndeterminate="{Binding IsConverting}" ShowProgressText="False"/>
+        </StackPanel>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="4"
+                Background="{DynamicResource SystemControlBackgroundAltMediumBrush}"
+                CornerRadius="4"
+                Padding="12,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Status:" FontWeight="Bold" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"/>
+                <TextBlock Grid.Column="2" Text="{Binding ImageFiles.Count, StringFormat='Bilder: {0}'}" FontWeight="Bold"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

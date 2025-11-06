@@ -1,0 +1,23 @@
+## .NET Core
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+
+## NuGet
+*.nupkg
+packages/
+
+## Test results
+TestResults/
+
+## OS files
+.DS_Store
+Thumbs.db
