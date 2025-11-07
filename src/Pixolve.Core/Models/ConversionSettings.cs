@@ -44,6 +44,11 @@ public class ConversionSettings
     public bool PreserveTimestamp { get; set; } = false;
 
     /// <summary>
+    /// Multi-format export settings
+    /// </summary>
+    public MultiFormatSettings? MultiFormat { get; set; }
+
+    /// <summary>
     /// Creates a deep copy of the settings
     /// </summary>
     public ConversionSettings Clone()
@@ -56,7 +61,8 @@ public class ConversionSettings
             TargetFormat = TargetFormat,
             OutputDirectory = OutputDirectory,
             OverwriteExisting = OverwriteExisting,
-            PreserveTimestamp = PreserveTimestamp
+            PreserveTimestamp = PreserveTimestamp,
+            MultiFormat = MultiFormat
         };
     }
 

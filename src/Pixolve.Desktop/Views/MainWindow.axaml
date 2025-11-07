@@ -34,8 +34,8 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="Pixolve" FontSize="28" FontWeight="Bold"/>
-            <TextBlock Text="Moderner plattformübergreifender Bild-Konverter" FontSize="14" Opacity="0.7"/>
+            <TextBlock Text="{Binding Localization.AppTitle}" FontSize="28" FontWeight="Bold"/>
+            <TextBlock Text="{Binding Localization.AppSubtitle}" FontSize="14" Opacity="0.7"/>
         </StackPanel>
 
         <!-- Source Selection & Settings -->
@@ -64,10 +64,10 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="Quellordner:" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <TextBox Grid.Column="1" Text="{Binding SourcePath}" Watermark="Ordnerpfad eingeben oder durchsuchen..." VerticalAlignment="Center"/>
-                    <Button Grid.Column="2" Content="Durchsuchen" Command="{Binding BrowseFolderCommand}" Margin="8,0,0,0" Padding="16,8"/>
-                    <Button Grid.Column="3" Content="Bilder laden" Command="{Binding LoadImagesCommand}" Margin="8,0,0,0" Padding="16,8"/>
+                    <TextBlock Grid.Column="0" Text="{Binding Localization.SourceFolder}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBox Grid.Column="1" Text="{Binding SourcePath}" Watermark="{Binding Localization.SourceFolderPlaceholder}" VerticalAlignment="Center"/>
+                    <Button Grid.Column="2" Content="{Binding Localization.Browse}" Command="{Binding BrowseFolderCommand}" Margin="8,0,0,0" Padding="16,8"/>
+                    <Button Grid.Column="3" Content="{Binding Localization.LoadImages}" Command="{Binding LoadImagesCommand}" Margin="8,0,0,0" Padding="16,8" IsEnabled="{Binding !IsLoading}"/>
                 </Grid>
             </Border>
 
@@ -79,17 +79,22 @@
                     Padding="12"
                     Margin="0,0,8,0">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MinWidth="180"/>
-                        <ColumnDefinition Width="*" MinWidth="180"/>
-                        <ColumnDefinition Width="*" MinWidth="180"/>
+                        <ColumnDefinition Width="*" MinWidth="160"/>
+                        <ColumnDefinition Width="*" MinWidth="160"/>
+                        <ColumnDefinition Width="*" MinWidth="140"/>
+                        <ColumnDefinition Width="*" MinWidth="140"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Format & Qualität -->
-                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                        <TextBlock Text="FORMAT &amp; QUALITÄT" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+                        <TextBlock Text="{Binding Localization.FormatAndQuality}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
 
-                        <TextBlock Text="Format:" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding Localization.Format}" FontSize="11" Margin="0,0,0,4"/>
                         <ComboBox ItemsSource="{Binding AvailableFormats}"
                                   SelectedItem="{Binding SelectedFormatOption}"
                                   FontSize="11"
@@ -102,7 +107,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <TextBlock Text="Qualität:" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding Localization.Quality}" FontSize="11" Margin="0,0,0,4"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -114,10 +119,10 @@
                     </StackPanel>
 
                     <!-- Größe & Ausgabe -->
-                    <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                        <TextBlock Text="GRÖSSE &amp; AUSGABE" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,0">
+                        <TextBlock Text="{Binding Localization.SizeAndOutput}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
 
-                        <TextBlock Text="Max Pixel:" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding Localization.MaxPixel}" FontSize="11" Margin="0,0,0,4"/>
                         <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -127,24 +132,87 @@
                             <TextBlock Grid.Column="1" Text="{Binding MaxPixelSize}" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11"/>
                         </Grid>
 
-                        <TextBlock Text="Ausgabeverzeichnis:" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding Localization.OutputDirectory}" FontSize="11" Margin="0,0,0,4"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding OutputDirectory}" Watermark="'converted'" FontSize="11" Margin="0,0,4,0"/>
+                            <TextBox Grid.Column="0" Text="{Binding OutputDirectory}" Watermark="{Binding Localization.OutputDirectoryWatermark}" FontSize="11" Margin="0,0,4,0"/>
                             <Button Grid.Column="1" Content="..." Command="{Binding BrowseOutputFolderCommand}" Width="30" Padding="4"/>
                         </Grid>
                     </StackPanel>
 
                     <!-- Optionen -->
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="OPTIONEN" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
-                        <CheckBox IsChecked="{Binding EnableResizing}" Content="Bildgröße anpassen" FontSize="11" Margin="0,0,0,4"/>
-                        <CheckBox IsChecked="{Binding OverwriteExisting}" Content="Dateien überschreiben" FontSize="11" Margin="0,0,0,4"/>
-                        <CheckBox IsChecked="{Binding PreserveTimestamp}" Content="Zeitstempel beibehalten" FontSize="11" Margin="0,0,0,4"/>
-                        <CheckBox IsChecked="{Binding IncludeSubfolders}" Content="Unterordner einbeziehen" FontSize="11"/>
+                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,0">
+                        <TextBlock Text="{Binding Localization.Options}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+                        <CheckBox IsChecked="{Binding EnableResizing}" Content="{Binding Localization.EnableResizing}" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding OverwriteExisting}" Content="{Binding Localization.OverwriteExisting}" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding PreserveTimestamp}" Content="{Binding Localization.PreserveTimestamp}" FontSize="11" Margin="0,0,0,4"/>
+                        <CheckBox IsChecked="{Binding IncludeSubfolders}" Content="{Binding Localization.IncludeSubfolders}" FontSize="11"/>
+                    </StackPanel>
+
+                    <!-- Darstellung -->
+                    <StackPanel Grid.Row="0" Grid.Column="3">
+                        <TextBlock Text="{Binding Localization.Appearance}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
+
+                        <TextBlock Text="{Binding Localization.Theme}" FontSize="11" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding AvailableThemes}"
+                                  SelectedItem="{Binding SelectedThemeOption}"
+                                  FontSize="11"
+                                  HorizontalAlignment="Stretch"
+                                  Margin="0,0,0,8">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Text="{Binding Localization.Language}" FontSize="11" Margin="0,0,0,4"/>
+                        <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                                  SelectedItem="{Binding SelectedLanguageOption}"
+                                  FontSize="11"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Multi-Format Export -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,12,0,0">
+                        <Separator Margin="0,0,0,12"/>
+                        <CheckBox IsChecked="{Binding EnableMultiFormat}"
+                                  Content="{Binding Localization.MultiFormatExport}"
+                                  FontWeight="Bold"
+                                  FontSize="11"
+                                  Margin="0,0,0,8"/>
+
+                        <ItemsControl ItemsSource="{Binding MultiFormatOptions}"
+                                      IsVisible="{Binding EnableMultiFormat}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,20,0" Width="120">
+                                        <CheckBox IsChecked="{Binding IsSelected}"
+                                                  Content="{Binding DisplayName}"
+                                                  FontSize="11"
+                                                  Margin="0,0,0,4"/>
+                                        <TextBox Text="{Binding CustomQuality}"
+                                                 Watermark="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.QualityWatermark}"
+                                                 FontSize="10"
+                                                 IsVisible="{Binding IsSelected}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -157,10 +225,10 @@
                     Padding="12"
                     Width="200">
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Aktionen" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <Button Content="Alle konvertieren" Command="{Binding ConvertImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
-                    <Button Content="Abbrechen" Command="{Binding CancelConversionCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding IsConverting}"/>
-                    <Button Content="Liste leeren" Command="{Binding ClearImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
+                    <TextBlock Text="{Binding Localization.Actions}" FontWeight="Bold" Margin="0,0,0,4"/>
+                    <Button Content="{Binding Localization.ConvertAll}" Command="{Binding ConvertImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
+                    <Button Content="{Binding Localization.Cancel}" Command="{Binding CancelConversionCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding IsConverting}"/>
+                    <Button Content="{Binding Localization.ClearList}" Command="{Binding ClearImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -182,7 +250,7 @@
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Vorschau" Width="70">
+                    <DataGridTemplateColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Preview}" Width="Auto" MinWidth="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Image Source="{Binding ThumbnailData, Converter={StaticResource ByteArrayToImageConverter}}"
@@ -193,12 +261,12 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Dateiname" Binding="{Binding FileName}" Width="2*" MinWidth="150" MaxWidth="400"/>
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" MinWidth="100" MaxWidth="120"/>
-                    <DataGridTextColumn Header="Vorher" Binding="{Binding FileSizeBeforeFormatted}" Width="*" MinWidth="70" MaxWidth="90"/>
-                    <DataGridTextColumn Header="Nachher" Binding="{Binding FileSizeAfterFormatted}" Width="*" MinWidth="70" MaxWidth="90"/>
-                    <DataGridTextColumn Header="%" Binding="{Binding CompressionRatioFormatted}" Width="*" MinWidth="50" MaxWidth="70"/>
-                    <DataGridTextColumn Header="Pixel" Binding="{Binding PixelSizeBefore}" Width="*" MinWidth="90" MaxWidth="120"/>
+                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.FileName}" Binding="{Binding FileName}" Width="Auto" MinWidth="150"/>
+                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Status}" Binding="{Binding Status}" Width="Auto" MinWidth="120"/>
+                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Before}" Binding="{Binding FileSizeBeforeFormatted}" Width="Auto" MinWidth="80"/>
+                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.After}" Binding="{Binding FileSizeAfterFormatted}" Width="Auto" MinWidth="80"/>
+                    <DataGridTextColumn Header="%" Binding="{Binding CompressionRatioFormatted}" Width="Auto" MinWidth="60"/>
+                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Pixel}" Binding="{Binding PixelSizeBefore}" Width="Auto" MinWidth="100"/>
                     <DataGridTemplateColumn Header="⚙" Width="50">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -206,28 +274,28 @@
                                         Padding="8,4"
                                         FontSize="14"
                                         HorizontalContentAlignment="Center"
-                                        ToolTip.Tip="Individuelle Einstellungen">
+                                        ToolTip.Tip="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.CustomSettings}">
                                     <Button.Flyout>
                                         <Flyout Placement="Bottom">
                                             <StackPanel Width="250" Spacing="8">
-                                                <TextBlock Text="Individuelle Einstellungen" FontWeight="Bold" Margin="0,0,0,8"/>
+                                                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.CustomSettings}" FontWeight="Bold" Margin="0,0,0,8"/>
 
-                                                <TextBlock Text="Format (leer = global):" FontSize="11"/>
+                                                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.FormatEmptyGlobal}" FontSize="11"/>
                                                 <ComboBox SelectedIndex="{Binding CustomTargetFormat}" FontSize="11">
-                                                    <ComboBoxItem Content="(Global)"/>
+                                                    <ComboBoxItem Content="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Global}"/>
                                                     <ComboBoxItem Content="WebP"/>
                                                     <ComboBoxItem Content="PNG"/>
                                                     <ComboBoxItem Content="JPEG"/>
                                                     <ComboBoxItem Content="AVIF"/>
                                                 </ComboBox>
 
-                                                <TextBlock Text="Qualität (leer = global):" FontSize="11" Margin="0,4,0,0"/>
-                                                <TextBox Text="{Binding CustomQuality}" Watermark="Global" FontSize="11"/>
+                                                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.QualityEmptyGlobal}" FontSize="11" Margin="0,4,0,0"/>
+                                                <TextBox Text="{Binding CustomQuality}" Watermark="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Global}" FontSize="11"/>
 
-                                                <TextBlock Text="Max Pixel (leer = global):" FontSize="11" Margin="0,4,0,0"/>
-                                                <TextBox Text="{Binding CustomMaxPixelSize}" Watermark="Global" FontSize="11"/>
+                                                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.MaxPixelEmptyGlobal}" FontSize="11" Margin="0,4,0,0"/>
+                                                <TextBox Text="{Binding CustomMaxPixelSize}" Watermark="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Global}" FontSize="11"/>
 
-                                                <TextBlock Text="Hinweis: Leere Felder verwenden die globalen Einstellungen."
+                                                <TextBlock Text="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.CustomSettingsNote}"
                                                            FontSize="10"
                                                            Opacity="0.7"
                                                            TextWrapping="Wrap"
@@ -260,7 +328,16 @@
 
         <!-- Progress Bar -->
         <StackPanel Grid.Row="3" Margin="0,0,0,8">
-            <ProgressBar Minimum="0" Maximum="{Binding ProgressMaximum}" Value="{Binding ProgressValue}" Height="8" IsIndeterminate="{Binding IsConverting}" ShowProgressText="False"/>
+            <ProgressBar Minimum="0"
+                         Maximum="{Binding ProgressMaximum}"
+                         Value="{Binding ProgressValue}"
+                         Height="8"
+                         ShowProgressText="False"
+                         IsVisible="{Binding IsLoading}"/>
+            <ProgressBar Height="8"
+                         IsIndeterminate="True"
+                         ShowProgressText="False"
+                         IsVisible="{Binding IsConverting}"/>
         </StackPanel>
 
         <!-- Status Bar -->
@@ -275,9 +352,12 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="Status:" FontWeight="Bold" Margin="0,0,8,0"/>
+                <TextBlock Grid.Column="0" Text="{Binding Localization.StatusLabel}" FontWeight="Bold" Margin="0,0,8,0"/>
                 <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"/>
-                <TextBlock Grid.Column="2" Text="{Binding ImageFiles.Count, StringFormat='Bilder: {0}'}" FontWeight="Bold"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="{Binding Localization.ImagesCount}" FontWeight="Bold" Margin="0,0,4,0"/>
+                    <TextBlock Text="{Binding ImageFiles.Count}" FontWeight="Bold"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

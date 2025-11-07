@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pixolve.Core.Interfaces;
 using Pixolve.Core.Models;
+using Pixolve.Desktop.Resources;
+using Pixolve.Desktop.Services;
 using SkiaSharp;
 
 namespace Pixolve.Desktop.ViewModels;
@@ -52,6 +54,23 @@ public partial class MainWindowViewModel : ViewModelBase
     private ImageFormatOption? _selectedFormatOption;
 
     [ObservableProperty]
+    private AppTheme _selectedTheme = AppTheme.System;
+
+    [ObservableProperty]
+    private AppLanguage _selectedLanguage = AppLanguage.German;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedTheme))]
+    private ThemeOption? _selectedThemeOption;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedLanguage))]
+    private LanguageOption? _selectedLanguageOption;
+
+    [ObservableProperty]
+    private bool _enableMultiFormat = false;
+
+    [ObservableProperty]
     private bool _isConverting = false;
 
     [ObservableProperty]
@@ -61,7 +80,10 @@ public partial class MainWindowViewModel : ViewModelBase
     private int _progressMaximum = 100;
 
     [ObservableProperty]
-    private string _statusMessage = "Bereit";
+    private string _statusMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _isLoading = false;
 
     public ObservableCollection<ImageFile> ImageFiles { get; } = new();
 
@@ -72,6 +94,33 @@ public partial class MainWindowViewModel : ViewModelBase
         new ImageFormatOption { Format = ImageFormat.Jpeg, DisplayName = "JPEG" },
         new ImageFormatOption { Format = ImageFormat.Avif, DisplayName = "AVIF" }
     };
+
+    public ObservableCollection<ThemeOption> AvailableThemes { get; } = new()
+    {
+        new ThemeOption { Theme = AppTheme.Light, DisplayName = "Hell" },
+        new ThemeOption { Theme = AppTheme.Dark, DisplayName = "Dunkel" },
+        new ThemeOption { Theme = AppTheme.System, DisplayName = "System" }
+    };
+
+    public ObservableCollection<LanguageOption> AvailableLanguages { get; } = new()
+    {
+        new LanguageOption { Language = AppLanguage.German, DisplayName = "Deutsch" },
+        new LanguageOption { Language = AppLanguage.English, DisplayName = "English" },
+        new LanguageOption { Language = AppLanguage.French, DisplayName = "Français" },
+        new LanguageOption { Language = AppLanguage.Spanish, DisplayName = "Español" },
+        new LanguageOption { Language = AppLanguage.Italian, DisplayName = "Italiano" }
+    };
+
+    public ObservableCollection<MultiFormatOption> MultiFormatOptions { get; } = new()
+    {
+        new MultiFormatOption { Format = ImageFormat.WebP, DisplayName = "WebP", IsSelected = false },
+        new MultiFormatOption { Format = ImageFormat.Png, DisplayName = "PNG", IsSelected = false },
+        new MultiFormatOption { Format = ImageFormat.Jpeg, DisplayName = "JPEG", IsSelected = false },
+        new MultiFormatOption { Format = ImageFormat.Avif, DisplayName = "AVIF", IsSelected = false }
+    };
+
+    // Expose LocalizationService for binding
+    public LocalizationService Localization => LocalizationService.Instance;
 
     public MainWindowViewModel(IImageConverter imageConverter)
     {
@@ -100,6 +149,21 @@ public partial class MainWindowViewModel : ViewModelBase
             // Set the format option based on loaded format
             var formatOption = AvailableFormats.FirstOrDefault(f => f.Format == settings.SelectedTargetFormat);
             SelectedFormatOption = formatOption ?? AvailableFormats[0];
+
+            // Load theme and language settings
+            SelectedTheme = settings.Theme;
+            SelectedLanguage = settings.Language;
+
+            // Set the theme and language options based on loaded values
+            var themeOption = AvailableThemes.FirstOrDefault(t => t.Theme == settings.Theme);
+            SelectedThemeOption = themeOption ?? AvailableThemes[2]; // Default to System
+
+            var languageOption = AvailableLanguages.FirstOrDefault(l => l.Language == settings.Language);
+            SelectedLanguageOption = languageOption ?? AvailableLanguages[0]; // Default to German
+
+            // Apply theme and language immediately
+            ThemeService.ApplyTheme(SelectedTheme);
+            LocalizationService.Instance.SetLanguage(SelectedLanguage);
         }
         finally
         {
@@ -122,7 +186,9 @@ public partial class MainWindowViewModel : ViewModelBase
             PreserveTimestamp = PreserveTimestamp,
             IncludeSubfolders = IncludeSubfolders,
             OutputDirectory = OutputDirectory,
-            SelectedTargetFormat = SelectedTargetFormat
+            SelectedTargetFormat = SelectedTargetFormat,
+            Theme = SelectedTheme,
+            Language = SelectedLanguage
         };
 
         settings.Save();
@@ -145,15 +211,73 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnIncludeSubfoldersChanged(bool value) => SaveSettings();
     partial void OnOutputDirectoryChanged(string value) => SaveSettings();
 
+    partial void OnSelectedThemeChanged(AppTheme value)
+    {
+        ThemeService.ApplyTheme(value);
+        SaveSettings();
+    }
+
+    partial void OnSelectedThemeOptionChanged(ThemeOption? value)
+    {
+        if (value != null)
+        {
+            SelectedTheme = value.Theme;
+        }
+    }
+
+    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
+    {
+        if (value != null)
+        {
+            SelectedLanguage = value.Language;
+        }
+    }
+
+    partial void OnSelectedLanguageChanged(AppLanguage value)
+    {
+        LocalizationService.Instance.SetLanguage(value);
+        SaveSettings();
+    }
+
     public class ImageFormatOption
     {
         public ImageFormat Format { get; set; }
         public string DisplayName { get; set; } = string.Empty;
     }
 
+    public class ThemeOption
+    {
+        public AppTheme Theme { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+    }
+
+    public class LanguageOption
+    {
+        public AppLanguage Language { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+    }
+
+    public partial class MultiFormatOption : ObservableObject
+    {
+        public ImageFormat Format { get; set; }
+        public string DisplayName { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        private bool _isSelected;
+
+        [ObservableProperty]
+        private int? _customQuality;
+    }
+
     public void SetStorageProvider(IStorageProvider storageProvider)
     {
         _storageProvider = storageProvider;
+
+        // Initialize status message after localization is available
+        if (string.IsNullOrEmpty(StatusMessage))
+        {
+            StatusMessage = Localization.StatusReady;
+        }
     }
 
     [RelayCommand]
@@ -161,7 +285,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (_storageProvider == null)
         {
-            StatusMessage = "Speicheranbieter nicht initialisiert";
+            StatusMessage = Localization.StatusStorageNotInitialized;
             return;
         }
 
@@ -177,12 +301,12 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 var folder = folders[0];
                 SourcePath = folder.Path.LocalPath;
-                StatusMessage = $"Ordner ausgewählt: {SourcePath}";
+                StatusMessage = string.Format(Localization.StatusFolderSelected, SourcePath);
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Fehler bei der Ordnerauswahl: {ex.Message}";
+            StatusMessage = string.Format(Localization.StatusFolderSelectionError, ex.Message);
         }
     }
 
@@ -191,7 +315,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (_storageProvider == null)
         {
-            StatusMessage = "Speicheranbieter nicht initialisiert";
+            StatusMessage = Localization.StatusStorageNotInitialized;
             return;
         }
 
@@ -207,12 +331,12 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 var folder = folders[0];
                 OutputDirectory = folder.Path.LocalPath;
-                StatusMessage = $"Ausgabeverzeichnis ausgewählt: {OutputDirectory}";
+                StatusMessage = string.Format(Localization.StatusOutputDirectorySelected, OutputDirectory);
             }
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Fehler bei der Ordnerauswahl: {ex.Message}";
+            StatusMessage = string.Format(Localization.StatusFolderSelectionError, ex.Message);
         }
     }
 
@@ -221,14 +345,15 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(SourcePath) || !Directory.Exists(SourcePath))
         {
-            StatusMessage = "Bitte einen gültigen Quellordner auswählen";
+            StatusMessage = Localization.StatusSelectValidFolder;
             return;
         }
 
         try
         {
+            IsLoading = true;
             ImageFiles.Clear();
-            StatusMessage = "Lade Bilder...";
+            StatusMessage = Localization.StatusLoadingImages;
 
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
             var searchOption = IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
@@ -236,6 +361,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
                 .ToList();
 
+            ProgressMaximum = imageFiles.Count;
+            ProgressValue = 0;
+
+            int loadedCount = 0;
             foreach (var filePath in imageFiles)
             {
                 var fileInfo = new FileInfo(filePath);
@@ -243,7 +372,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     FileName = fileInfo.Name,
                     FilePath = fileInfo.DirectoryName ?? string.Empty,
-                    FileSizeBefore = fileInfo.Length
+                    FileSizeBefore = fileInfo.Length,
+                    Status = Localization.ImageStatusPending
                 };
 
                 // Try to get image dimensions and generate thumbnail
@@ -277,13 +407,28 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
 
                 ImageFiles.Add(imageFile);
+
+                loadedCount++;
+                ProgressValue = loadedCount;
+                StatusMessage = $"{Localization.StatusLoadingImages} ({loadedCount}/{imageFiles.Count})";
+
+                // Allow UI to update every 10 images
+                if (loadedCount % 10 == 0)
+                {
+                    await Task.Delay(1);
+                }
             }
 
-            StatusMessage = $"{ImageFiles.Count} Bilder geladen";
+            StatusMessage = string.Format(Localization.StatusImagesLoaded, ImageFiles.Count);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Fehler beim Laden der Bilder: {ex.Message}";
+            StatusMessage = string.Format(Localization.StatusLoadImagesError, ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+            ProgressValue = 0;
         }
 
         await Task.CompletedTask;
@@ -294,7 +439,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (ImageFiles.Count == 0)
         {
-            StatusMessage = "Keine Bilder zum Konvertieren vorhanden";
+            StatusMessage = Localization.StatusNoImagesToConvert;
             return;
         }
 
@@ -306,6 +451,25 @@ public partial class MainWindowViewModel : ViewModelBase
             ProgressMaximum = ImageFiles.Count;
             ProgressValue = 0;
 
+            // Prepare multi-format settings if enabled
+            MultiFormatSettings? multiFormat = null;
+            if (EnableMultiFormat)
+            {
+                var selectedFormats = MultiFormatOptions.Where(o => o.IsSelected).ToList();
+                if (selectedFormats.Any())
+                {
+                    multiFormat = new MultiFormatSettings
+                    {
+                        EnableMultiFormat = true,
+                        TargetFormats = selectedFormats.Select(o => new FormatQualityPair
+                        {
+                            Format = o.Format,
+                            Quality = o.CustomQuality
+                        }).ToList()
+                    };
+                }
+            }
+
             var settings = new ConversionSettings
             {
                 Quality = Quality,
@@ -314,13 +478,14 @@ public partial class MainWindowViewModel : ViewModelBase
                 TargetFormat = SelectedTargetFormat,
                 OverwriteExisting = OverwriteExisting,
                 PreserveTimestamp = PreserveTimestamp,
-                OutputDirectory = OutputDirectory // Use custom or default "converted" subfolder
+                OutputDirectory = OutputDirectory, // Use custom or default "converted" subfolder
+                MultiFormat = multiFormat
             };
 
             var validation = settings.Validate();
             if (!validation.IsValid)
             {
-                StatusMessage = $"Ungültige Einstellungen: {validation.ErrorMessage}";
+                StatusMessage = string.Format(Localization.StatusInvalidSettings, validation.ErrorMessage);
                 return;
             }
 
@@ -331,13 +496,13 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    imageFile.Status = "Abgebrochen";
-                    StatusMessage = "Konvertierung abgebrochen";
+                    imageFile.Status = Localization.ImageStatusCancelled;
+                    StatusMessage = Localization.StatusConversionCancelled;
                     break;
                 }
 
-                imageFile.Status = "Konvertierung läuft...";
-                StatusMessage = $"Konvertiere {imageFile.FileName}...";
+                imageFile.Status = Localization.ImageStatusConverting;
+                StatusMessage = string.Format(Localization.StatusConverting, imageFile.FileName);
 
                 // Create settings for this specific image, using custom settings if available
                 var imageSettings = new ConversionSettings
@@ -348,35 +513,79 @@ public partial class MainWindowViewModel : ViewModelBase
                     TargetFormat = imageFile.CustomTargetFormat ?? settings.TargetFormat,
                     OverwriteExisting = settings.OverwriteExisting,
                     PreserveTimestamp = settings.PreserveTimestamp,
-                    OutputDirectory = settings.OutputDirectory
+                    OutputDirectory = settings.OutputDirectory,
+                    MultiFormat = settings.MultiFormat
                 };
 
-                var result = await _imageConverter.ConvertAsync(
-                    imageFile,
-                    imageSettings,
-                    _cancellationTokenSource.Token);
-
-                if (result.IsSuccess)
+                // Check if multi-format is enabled
+                if (settings.MultiFormat?.EnableMultiFormat == true && settings.MultiFormat.TargetFormats.Any())
                 {
-                    imageFile.FileSizeAfter = result.OutputSize;
-                    imageFile.PixelSizeAfter = result.OutputDimensions ?? string.Empty;
-                    imageFile.Status = "Erfolgreich";
-                    successCount++;
+                    // Convert to multiple formats
+                    int formatSuccessCount = 0;
+                    foreach (var formatPair in settings.MultiFormat.TargetFormats)
+                    {
+                        var formatSettings = imageSettings.Clone();
+                        formatSettings.TargetFormat = formatPair.Format;
+                        formatSettings.Quality = formatPair.Quality ?? imageSettings.Quality;
+                        formatSettings.MultiFormat = null; // Disable multi-format for individual conversions
+
+                        var result = await _imageConverter.ConvertAsync(
+                            imageFile,
+                            formatSettings,
+                            _cancellationTokenSource.Token);
+
+                        if (result.IsSuccess)
+                        {
+                            formatSuccessCount++;
+                        }
+                    }
+
+                    if (formatSuccessCount == settings.MultiFormat.TargetFormats.Count)
+                    {
+                        imageFile.Status = string.Format(Localization.ImageStatusSuccessMulti, formatSuccessCount);
+                        successCount++;
+                    }
+                    else if (formatSuccessCount > 0)
+                    {
+                        imageFile.Status = string.Format(Localization.ImageStatusPartial, formatSuccessCount, settings.MultiFormat.TargetFormats.Count);
+                        successCount++;
+                    }
+                    else
+                    {
+                        imageFile.Status = Localization.ImageStatusError;
+                        failureCount++;
+                    }
                 }
                 else
                 {
-                    imageFile.Status = $"Fehler: {result.ErrorMessage}";
-                    failureCount++;
+                    // Single format conversion
+                    var result = await _imageConverter.ConvertAsync(
+                        imageFile,
+                        imageSettings,
+                        _cancellationTokenSource.Token);
+
+                    if (result.IsSuccess)
+                    {
+                        imageFile.FileSizeAfter = result.OutputSize;
+                        imageFile.PixelSizeAfter = result.OutputDimensions ?? string.Empty;
+                        imageFile.Status = Localization.ImageStatusSuccess;
+                        successCount++;
+                    }
+                    else
+                    {
+                        imageFile.Status = string.Format(Localization.ImageStatusErrorWithMessage, result.ErrorMessage);
+                        failureCount++;
+                    }
                 }
 
                 ProgressValue++;
             }
 
-            StatusMessage = $"Konvertierung abgeschlossen: {successCount} erfolgreich, {failureCount} fehlgeschlagen";
+            StatusMessage = string.Format(Localization.StatusConversionComplete, successCount, failureCount);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Fehler bei der Konvertierung: {ex.Message}";
+            StatusMessage = string.Format(Localization.StatusConversionError, ex.Message);
         }
         finally
         {
@@ -390,7 +599,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void CancelConversion()
     {
         _cancellationTokenSource?.Cancel();
-        StatusMessage = "Konvertierung wird abgebrochen...";
+        StatusMessage = Localization.StatusCancelling;
     }
 
     [RelayCommand]
@@ -398,7 +607,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         ImageFiles.Clear();
         ProgressValue = 0;
-        StatusMessage = "Bereit";
+        StatusMessage = Localization.StatusReady;
     }
 
     [RelayCommand]
@@ -407,7 +616,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (imageFile != null && ImageFiles.Contains(imageFile))
         {
             ImageFiles.Remove(imageFile);
-            StatusMessage = $"Datei entfernt: {imageFile.FileName}";
+            StatusMessage = string.Format(Localization.StatusFileRemoved, imageFile.FileName);
         }
     }
 
@@ -421,7 +630,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             // Single folder dropped
             SourcePath = paths[0];
-            StatusMessage = $"Ordner per Drag & Drop ausgewählt: {SourcePath}";
+            StatusMessage = string.Format(Localization.StatusFolderDropped, SourcePath);
             await LoadImages();
         }
         else
@@ -430,7 +639,7 @@ public partial class MainWindowViewModel : ViewModelBase
             try
             {
                 ImageFiles.Clear();
-                StatusMessage = "Lade Bilder...";
+                StatusMessage = Localization.StatusLoadingImages;
 
                 var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
                 int addedCount = 0;

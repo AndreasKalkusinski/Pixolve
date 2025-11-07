@@ -1,68 +1,135 @@
 # Pixolve
 
+<div align="center">
+
+![Pixolve Logo](src/Pixolve.Desktop/Assets/pixolve-logo.png)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-green.svg)
 
-**Pixolve** is a modern, cross-platform image conversion tool built with Avalonia UI and .NET 9. Convert your images to modern formats like WebP, AVIF, and more with an intuitive interface.
+**Pixolve** is a modern, cross-platform image conversion tool built with Avalonia UI and .NET 9. Convert your images to modern formats like WebP, AVIF, and more with an intuitive, blazing-fast interface.
 
-## Features
+[Features](#features) • [Screenshots](#screenshots) • [Installation](#installation) • [Quick Start](#quick-start) • [Building](#building-from-source)
 
-- 🖼️ **Multi-Format Support**: WebP, AVIF, PNG, JPEG, and more
-- 🚀 **Batch Processing**: Convert multiple images at once
-- ⚡ **Fast & Efficient**: Powered by SkiaSharp for high-performance image processing
-- 🎨 **Modern UI**: Clean, responsive interface built with Avalonia UI
-- 🔧 **Advanced Options**: Quality control, resizing, and optimization settings
-- 📁 **Smart Organization**: Automatically organizes converted files
-- 🎯 **Drag & Drop**: Intuitive file handling
-- 💾 **Settings Persistence**: Remembers your preferences
-- 🌍 **Cross-Platform**: Works on Windows, macOS, and Linux
+</div>
 
-## Screenshots
+---
 
-_Coming soon_
+## ✨ Features
 
-## Installation
+### Core Functionality
+- 🖼️ **Multi-Format Support**: Convert between WebP, AVIF, PNG, and JPEG formats
+- 🔄 **Multi-Format Export**: Export a single image to multiple formats simultaneously
+- 🚀 **Batch Processing**: Convert hundreds of images at once with progress tracking
+- ⚡ **High Performance**: Powered by SkiaSharp for lightning-fast image processing
+- 📁 **Smart Organization**: Auto-creates organized output folders with proper naming
 
-### Windows
+### User Interface
+- 🎨 **Modern Fluent Design**: Clean, responsive interface that adapts to your workflow
+- 🌓 **Dark Mode**: Full dark/light theme support with system integration
+- 🌍 **Multilingual**: English and German language support
+- 🎯 **Drag & Drop**: Intuitive file and folder handling
+- 👁️ **Live Preview**: Thumbnail previews in the file list
+- 📊 **Real-time Statistics**: See file sizes, compression ratios, and progress
 
-```bash
-# Download the installer
-# Coming soon: MSI/EXE installer
+### Advanced Features
+- ⚙️ **Per-Image Settings**: Customize format, quality, and size for individual images
+- 🔧 **Global Settings**: Set default conversion parameters
+- 📏 **Smart Resizing**: Automatic image resizing with dimension suffix in filenames
+- 💾 **Settings Persistence**: All preferences are saved between sessions
+- 📂 **Subfolder Support**: Include subfolders in batch operations
+- 🔄 **Quality Presets**: Quick access to common quality settings
 
-# Or use portable version
-# Extract and run Pixolve.exe
-```
+### Technical Highlights
+- 🌍 **100% Cross-Platform**: Native performance on Windows, macOS, and Linux
+- 🏗️ **Clean Architecture**: Separation of concerns with MVVM pattern
+- 🧪 **Well-Tested**: Comprehensive test coverage
+- 🔒 **Type-Safe**: Built with modern C# 12 and .NET 9
 
-### macOS
+## 📸 Screenshots
 
-```bash
-# Download the .dmg file
-# Coming soon
+### Main Interface (Light Theme)
+![Main Interface](docs/screenshots/main-interface-light.png)
+*Clean, modern interface with all conversion settings at your fingertips*
 
-# Or via Homebrew (planned)
-brew install --cask pixolve
-```
+### Main Interface (Dark Theme)
+![Dark Mode](docs/screenshots/main-interface-dark.png)
+*Easy on the eyes with full dark mode support*
 
-### Linux
+### Multi-Format Export
+![Multi-Format Export](docs/screenshots/multi-format-export.png)
+*Export one image to multiple formats with individual quality settings*
 
-```bash
-# AppImage (portable)
-chmod +x Pixolve.AppImage
-./Pixolve.AppImage
+### Batch Conversion in Progress
+![Batch Conversion](docs/screenshots/batch-conversion.png)
+*Real-time progress tracking for batch operations*
 
-# Or via package managers (planned)
-# Debian/Ubuntu: apt install pixolve
-# Fedora: dnf install pixolve
-# Flatpak: flatpak install pixolve
-```
+### Per-Image Custom Settings
+![Custom Settings](docs/screenshots/per-image-settings.png)
+*Fine-tune settings for individual images via the gear icon*
 
-## Quick Start
+## 📦 Installation
 
-1. **Select Images**: Drag & drop images or click "Browse" to select files
-2. **Choose Format**: Select your desired output format (WebP, AVIF, etc.)
-3. **Adjust Settings**: Configure quality, size, and other options
-4. **Convert**: Click "Convert" and your images will be processed
+### Download Pre-built Binaries
+
+Visit the [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases) page to download the latest version for your platform:
+
+#### Windows
+1. Download `Pixolve-vX.X.X-win-x64.zip`
+2. Extract the archive
+3. Run `Pixolve.Desktop.exe`
+
+#### Linux
+1. Download `Pixolve-vX.X.X-linux-x64.zip`
+2. Extract the archive
+3. Make executable: `chmod +x Pixolve.Desktop`
+4. Run: `./Pixolve.Desktop`
+
+#### macOS
+1. Download `Pixolve-vX.X.X-osx-x64.zip`
+2. Extract the archive
+3. Run `Pixolve.Desktop`
+
+> **Note**: All binaries are self-contained and include the .NET runtime - no additional dependencies required!
+
+## 🚀 Quick Start
+
+### Basic Conversion
+1. **Load Images**:
+   - Click "Durchsuchen" (Browse) and select a folder with images
+   - Or drag & drop images/folders directly into the window
+   - Click "Bilder laden" (Load Images) to scan the folder
+
+2. **Configure Settings**:
+   - **Format**: Choose output format (WebP, AVIF, PNG, JPEG)
+   - **Quality**: Adjust quality slider (0-100)
+   - **Max Pixel**: Set maximum width/height for resizing
+   - **Output Directory**: Choose where to save (defaults to "converted" subfolder)
+
+3. **Convert**: Click "Alle konvertieren" (Convert All)
+
+4. **View Results**: Check the status column for conversion results and file size savings
+
+### Advanced Usage
+
+#### Multi-Format Export
+1. Enable "Multi-Format Export" checkbox in settings
+2. Select which formats you want (WebP, PNG, JPEG, AVIF)
+3. Optionally set custom quality for each format
+4. Convert - each image will be exported in all selected formats!
+
+#### Per-Image Custom Settings
+1. Click the ⚙ (gear) icon next to any image in the list
+2. Set custom format, quality, or size for that specific image
+3. Leave fields empty to use global settings
+4. Convert as usual
+
+#### Theme & Language
+- **Theme**: Choose Light, Dark, or System (follows OS theme)
+- **Language**: Switch between German and English
+- All settings are automatically saved
 
 ## Building from Source
 
@@ -75,16 +142,13 @@ chmod +x Pixolve.AppImage
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pixolve.git
-cd pixolve
+git clone https://github.com/AndreasKalkusinski/Pixolve.git
+cd Pixolve
 
-# Restore dependencies
-dotnet restore
-
-# Build
+# Restore dependencies and build
 dotnet build
 
-# Run
+# Run the application
 dotnet run --project src/Pixolve.Desktop
 ```
 
@@ -94,26 +158,55 @@ dotnet run --project src/Pixolve.Desktop
 dotnet test
 ```
 
-## Project Structure
+### Publish Self-Contained Binaries
+
+```bash
+# Windows
+dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-x64
+
+# Linux
+dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-x64
+
+# macOS
+dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/osx-x64
+```
+
+## 📁 Project Structure
 
 ```
 Pixolve/
 ├── src/
-│   ├── Pixolve.Desktop/      # Avalonia UI application
-│   │   ├── Views/             # UI views
-│   │   ├── ViewModels/        # View models (MVVM)
-│   │   ├── Assets/            # Images, fonts, resources
-│   │   └── Program.cs         # Entry point
-│   └── Pixolve.Core/          # Core business logic
-│       ├── Models/            # Data models
-│       ├── Services/          # Business services
-│       │   ├── Converters/    # Image conversion logic
-│       │   └── FileService/   # File operations
-│       └── Interfaces/        # Service contracts
+│   ├── Pixolve.Desktop/           # Avalonia UI application
+│   │   ├── Views/                 # AXAML views
+│   │   │   └── MainWindow.axaml   # Main application window
+│   │   ├── ViewModels/            # View models (MVVM)
+│   │   │   └── MainWindowViewModel.cs
+│   │   ├── Converters/            # Value converters for data binding
+│   │   ├── Resources/             # Localization strings
+│   │   ├── Services/              # UI services (Theme, etc.)
+│   │   ├── Assets/                # Images, icons, fonts
+│   │   │   └── pixolve-logo.ico   # Application icon
+│   │   └── Program.cs             # Entry point
+│   └── Pixolve.Core/              # Core business logic
+│       ├── Models/                # Data models
+│       │   ├── ImageFile.cs       # Image file representation
+│       │   ├── ConversionSettings.cs
+│       │   ├── UserSettings.cs
+│       │   ├── ImageFormat.cs
+│       │   ├── AppTheme.cs
+│       │   ├── AppLanguage.cs
+│       │   └── MultiFormatSettings.cs
+│       ├── Services/              # Business services
+│       │   ├── ImageConverter.cs  # Core conversion logic
+│       │   ├── FolderScanner.cs   # File system operations
+│       │   └── SettingsService.cs # Settings persistence
+│       └── Interfaces/            # Service contracts
 ├── tests/
-│   └── Pixolve.Tests/         # Unit tests
-├── docs/                      # Documentation
-├── .github/                   # CI/CD workflows
+│   └── Pixolve.Tests/             # xUnit tests
+├── docs/
+│   └── screenshots/               # README screenshots
+├── .github/
+│   └── workflows/                 # GitHub Actions CI/CD
 └── README.md
 ```
 
@@ -144,28 +237,42 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
-## Roadmap
+## 🗺️ Roadmap
 
-### Phase 1: MVP (Current)
+### ✅ Version 1.0 (Released)
 - [x] Project structure setup
-- [ ] Basic WebP conversion
-- [ ] Modern UI implementation
-- [ ] Drag & drop support
-- [ ] Settings persistence
+- [x] Multi-format conversion (WebP, AVIF, PNG, JPEG)
+- [x] Modern Avalonia UI implementation
+- [x] Drag & drop support
+- [x] Batch processing
+- [x] Thumbnail previews
+- [x] Per-image custom settings
+- [x] Settings persistence
+- [x] Smart file naming with dimension suffix
+- [x] Cross-platform support (Windows, macOS, Linux)
 
-### Phase 2: Enhanced Features
-- [ ] AVIF support
-- [ ] HEIF support
+### ✅ Version 1.1 (Current)
+- [x] Dark Mode support
+- [x] Multilingual support (English/German)
+- [x] Multi-Format Export (one image → multiple formats)
+- [x] Improved UI layout and responsiveness
+- [x] Enhanced README with comprehensive documentation
+
+### 🚧 Version 1.2 (Planned)
+- [ ] Compression statistics and reporting
+- [ ] Undo/Redo functionality
+- [ ] Image preview (before/after comparison)
+- [ ] More language support
+- [ ] Performance optimizations
+
+### 🔮 Version 2.0 (Future)
+- [ ] HEIF/HEIC support
 - [ ] JPEG XL support
-- [ ] Batch operations
-- [ ] Preview mode (before/after)
-
-### Phase 3: Advanced
 - [ ] Watermark support
-- [ ] Resize presets
-- [ ] Undo/Redo
 - [ ] Profile/Template system
-- [ ] CLI interface
+- [ ] CLI interface for automation
+- [ ] Batch rename functionality
+- [ ] Advanced filtering options
 
 ## License
 
@@ -177,16 +284,34 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Image processing powered by [SkiaSharp](https://github.com/mono/SkiaSharp)
 - Inspired by the need for a modern, cross-platform image converter
 
-## Support
+## 💬 Support
 
-- 📖 [Documentation](docs/)
-- 🐛 [Issue Tracker](https://github.com/yourusername/pixolve/issues)
-- 💬 [Discussions](https://github.com/yourusername/pixolve/discussions)
+- 🐛 [Report Issues](https://github.com/AndreasKalkusinski/Pixolve/issues)
+- 💡 [Feature Requests](https://github.com/AndreasKalkusinski/Pixolve/issues/new?labels=enhancement)
+- 📖 [Documentation](https://github.com/AndreasKalkusinski/Pixolve/wiki)
+- 💬 [Discussions](https://github.com/AndreasKalkusinski/Pixolve/discussions)
 
-## Author
+## 🙏 Acknowledgments
 
-Created with ❤️ by QonCierge
+- Built with [Avalonia UI](https://avaloniaui.net/) - Cross-platform XAML framework
+- Image processing powered by [SkiaSharp](https://github.com/mono/SkiaSharp) - High-performance 2D graphics
+- MVVM framework: [CommunityToolkit.Mvvm](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/)
+- Inspired by the need for a modern, cross-platform image converter
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+Created by **Andreas Kalkusinski** with assistance from Claude Code
 
 ---
 
-**Star ⭐ this repository if you find it helpful!**
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+Made with ❤️ and .NET 9
+
+</div>

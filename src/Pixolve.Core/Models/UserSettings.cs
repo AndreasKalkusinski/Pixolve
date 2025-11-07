@@ -15,6 +15,8 @@ public class UserSettings
     public bool IncludeSubfolders { get; set; } = false;
     public string OutputDirectory { get; set; } = string.Empty;
     public ImageFormat SelectedTargetFormat { get; set; } = ImageFormat.WebP;
+    public AppTheme Theme { get; set; } = AppTheme.System;
+    public AppLanguage Language { get; set; } = AppLanguage.German;
 
     private static readonly string SettingsPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

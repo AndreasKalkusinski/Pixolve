@@ -19,7 +19,7 @@ public class ImageFile : INotifyPropertyChanged
     private bool _isConverted;
     private bool _isInProgress;
     private string _errorMessage = string.Empty;
-    private string _status = "Warten";
+    private string _status = string.Empty;
     private byte[]? _thumbnailData;
     private int? _customQuality;
     private int? _customMaxPixelSize;
