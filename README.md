@@ -88,9 +88,21 @@ Visit the [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases) pag
 4. Run: `./Pixolve.Desktop`
 
 #### macOS
-1. Download `Pixolve-vX.X.X-osx-x64.zip`
+
+**Option 1: DMG Installer (Recommended)**
+1. Download `Pixolve-vX.X.X-macOS.dmg`
+2. Double-click to mount the disk image
+3. Drag `Pixolve.app` to the Applications folder
+4. Eject the disk image
+5. Launch from Applications (Right-click → Open on first launch)
+
+**Option 2: ZIP Archive**
+1. Download `Pixolve-vX.X.X-macOS.zip`
 2. Extract the archive
-3. Run `Pixolve.Desktop`
+3. Drag `Pixolve.app` to Applications
+4. Launch (Right-click → Open on first launch)
+
+> **macOS Security Note**: On first launch, right-click the app and select "Open" to bypass Gatekeeper. Subsequent launches work with double-click.
 
 > **Note**: All binaries are self-contained and include the .NET runtime - no additional dependencies required!
 
@@ -160,15 +172,28 @@ dotnet test
 
 ### Publish Self-Contained Binaries
 
+#### macOS (Automated)
 ```bash
-# Windows
+# Create .app bundle with DMG installer
+./publish-macos.sh
+
+# Optional: Create DMG installer separately
+./create-dmg.sh
+```
+
+This creates:
+- `publish/Pixolve.app` - Ready-to-distribute app bundle
+- `publish/Pixolve-v1.1.0-macOS.zip` - ZIP archive
+- `publish/Pixolve-v1.1.0-macOS.dmg` - DMG installer (if using create-dmg.sh)
+
+#### Windows
+```bash
 dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-x64
+```
 
-# Linux
+#### Linux
+```bash
 dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-x64
-
-# macOS
-dotnet publish src/Pixolve.Desktop/Pixolve.Desktop.csproj -c Release -r osx-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/osx-x64
 ```
 
 ## 📁 Project Structure

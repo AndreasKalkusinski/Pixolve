@@ -6,6 +6,13 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <ApplicationIcon>Assets/pixolve-logo.ico</ApplicationIcon>
+    <CFBundleName>Pixolve</CFBundleName>
+    <CFBundleDisplayName>Pixolve</CFBundleDisplayName>
+    <CFBundleIdentifier>com.pixolve.desktop</CFBundleIdentifier>
+    <CFBundleVersion>1.1.0</CFBundleVersion>
+    <CFBundlePackageType>APPL</CFBundlePackageType>
+    <CFBundleIconFile>pixolve-logo.icns</CFBundleIconFile>
   </PropertyGroup>
 
   <ItemGroup>
