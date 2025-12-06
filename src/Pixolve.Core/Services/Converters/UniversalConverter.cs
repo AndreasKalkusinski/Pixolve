@@ -1,6 +1,7 @@
 using Pixolve.Core.Interfaces;
 using Pixolve.Core.Models;
 using SkiaSharp;
+using ImageMagick;
 
 namespace Pixolve.Core.Services.Converters;
 
@@ -26,8 +27,23 @@ public class UniversalConverter : IImageConverter
             ImageFormat.Gif => true,
             ImageFormat.WebP => true,
             ImageFormat.Avif => true,
+            // RAW formats
+            ImageFormat.NikonRaw => true,
+            ImageFormat.CanonRaw => true,
+            ImageFormat.SonyRaw => true,
+            ImageFormat.AdobeDng => true,
+            ImageFormat.OtherRaw => true,
             _ => false
         };
+    }
+
+    private bool IsRawFormat(ImageFormat format)
+    {
+        return format is ImageFormat.NikonRaw
+            or ImageFormat.CanonRaw
+            or ImageFormat.SonyRaw
+            or ImageFormat.AdobeDng
+            or ImageFormat.OtherRaw;
     }
 
     public async Task<ConversionResult> ConvertAsync(
@@ -53,8 +69,22 @@ public class UniversalConverter : IImageConverter
             if (!File.Exists(fullInputPath))
                 return ConversionResult.Failure($"File not found: {fullInputPath}");
 
-            // Load the original image
-            using var skBitmap = await Task.Run(() => SKBitmap.Decode(fullInputPath), cancellationToken);
+            SKBitmap? skBitmap = null;
+
+            // Check if it's a RAW format
+            var fileExtension = Path.GetExtension(fullInputPath).ToLowerInvariant();
+            var sourceFormat = GetImageFormatFromExtension(fileExtension);
+
+            if (IsRawFormat(sourceFormat))
+            {
+                // Use ImageMagick to decode RAW file
+                skBitmap = await DecodeRawImageAsync(fullInputPath, cancellationToken);
+            }
+            else
+            {
+                // Use SkiaSharp for standard formats
+                skBitmap = await Task.Run(() => SKBitmap.Decode(fullInputPath), cancellationToken);
+            }
 
             if (skBitmap == null)
                 return ConversionResult.Failure("Failed to decode image");
@@ -210,5 +240,52 @@ public class UniversalConverter : IImageConverter
             ImageFormat.Avif => "avif",
             _ => "webp"
         };
+    }
+
+    private ImageFormat GetImageFormatFromExtension(string extension)
+    {
+        return extension.ToLowerInvariant() switch
+        {
+            ".jpg" or ".jpeg" => ImageFormat.Jpeg,
+            ".png" => ImageFormat.Png,
+            ".bmp" => ImageFormat.Bmp,
+            ".gif" => ImageFormat.Gif,
+            ".webp" => ImageFormat.WebP,
+            ".avif" => ImageFormat.Avif,
+            ".nef" => ImageFormat.NikonRaw,
+            ".cr2" or ".cr3" => ImageFormat.CanonRaw,
+            ".arw" => ImageFormat.SonyRaw,
+            ".dng" => ImageFormat.AdobeDng,
+            ".raw" or ".raf" or ".orf" or ".rw2" or ".pef" or ".srw" or ".erf"
+                => ImageFormat.OtherRaw,
+            _ => ImageFormat.Unknown
+        };
+    }
+
+    private async Task<SKBitmap?> DecodeRawImageAsync(string filePath, CancellationToken cancellationToken)
+    {
+        return await Task.Run(() =>
+        {
+            try
+            {
+                using var magickImage = new MagickImage(filePath);
+
+                // Apply basic RAW processing
+                magickImage.AutoOrient(); // Fix orientation based on EXIF
+
+                // Convert to PNG bytes (lossless intermediate)
+                var pngBytes = magickImage.ToByteArray(MagickFormat.Png);
+
+                // Decode with SkiaSharp
+                using var stream = new MemoryStream(pngBytes);
+                return SKBitmap.Decode(stream);
+            }
+            catch (MagickException ex)
+            {
+                // Log or handle RAW decoding error
+                Console.WriteLine($"RAW decode error: {ex.Message}");
+                return null;
+            }
+        }, cancellationToken);
     }
 }

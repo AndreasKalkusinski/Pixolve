@@ -354,9 +354,12 @@
 
                 <TextBlock Grid.Column="0" Text="{Binding Localization.StatusLabel}" FontWeight="Bold" Margin="0,0,8,0"/>
                 <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"/>
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <TextBlock Text="{Binding Localization.ImagesCount}" FontWeight="Bold" Margin="0,0,4,0"/>
-                    <TextBlock Text="{Binding ImageFiles.Count}" FontWeight="Bold"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Localization.ImagesCount}" FontWeight="Bold" Margin="0,0,4,0"/>
+                        <TextBlock Text="{Binding ImageFiles.Count}" FontWeight="Bold"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding AppVersion}" Opacity="0.7" FontSize="11"/>
                 </StackPanel>
             </Grid>
         </Border>

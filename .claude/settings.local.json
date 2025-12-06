@@ -2,7 +2,30 @@
   "permissions": {
     "allow": [
       "Bash(test:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dotnet --version:*)",
+      "Bash(dotnet --list-sdks:*)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(chmod:*)",
+      "Bash(sips:*)",
+      "Bash(open:*)",
+      "Bash(xattr:*)",
+      "Bash(codesign:*)",
+      "Bash(./publish-macos.sh:*)",
+      "Bash(./create-dmg.sh:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git push)",
+      "Bash(gh release:*)",
+      "Bash(publish/Pixolve-v1.1.0-macOS.dmg )",
+      "Bash(publish/Pixolve-v1.1.0-macOS.zip)",
+      "Bash(dotnet add:*)",
+      "Bash(killall:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(./install-macos.sh:*)"
     ],
     "deny": [],
     "ask": []

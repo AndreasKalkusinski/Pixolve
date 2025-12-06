@@ -7,10 +7,13 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>Assets/pixolve-logo.ico</ApplicationIcon>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <CFBundleName>Pixolve</CFBundleName>
     <CFBundleDisplayName>Pixolve</CFBundleDisplayName>
     <CFBundleIdentifier>com.pixolve.desktop</CFBundleIdentifier>
-    <CFBundleVersion>1.1.0</CFBundleVersion>
+    <CFBundleVersion>1.2.0</CFBundleVersion>
     <CFBundlePackageType>APPL</CFBundlePackageType>
     <CFBundleIconFile>pixolve-logo.icns</CFBundleIconFile>
   </PropertyGroup>

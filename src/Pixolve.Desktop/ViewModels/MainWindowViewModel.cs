@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
@@ -21,6 +22,14 @@ public partial class MainWindowViewModel : ViewModelBase
     private CancellationTokenSource? _cancellationTokenSource;
     private IStorageProvider? _storageProvider;
     private bool _isLoadingSettings;
+
+    public string AppVersion { get; }= GetAppVersion();
+
+    private static string GetAppVersion()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        return $"v{version?.Major}.{version?.Minor}.{version?.Build}";
+    }
 
     [ObservableProperty]
     private string _sourcePath = string.Empty;
@@ -355,7 +364,22 @@ public partial class MainWindowViewModel : ViewModelBase
             ImageFiles.Clear();
             StatusMessage = Localization.StatusLoadingImages;
 
-            var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+            var supportedExtensions = new[]
+            {
+                // Standard formats
+                ".jpg", ".jpeg", ".png", ".bmp", ".gif",
+                // RAW formats
+                ".nef",           // Nikon
+                ".cr2", ".cr3",   // Canon
+                ".arw",           // Sony
+                ".dng",           // Adobe
+                ".raw", ".raf",   // Fuji
+                ".orf",           // Olympus
+                ".rw2",           // Panasonic
+                ".pef",           // Pentax
+                ".srw",           // Samsung
+                ".erf"            // Epson
+            };
             var searchOption = IncludeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             var imageFiles = Directory.GetFiles(SourcePath, "*.*", searchOption)
                 .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
@@ -641,7 +665,22 @@ public partial class MainWindowViewModel : ViewModelBase
                 ImageFiles.Clear();
                 StatusMessage = Localization.StatusLoadingImages;
 
-                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+                var supportedExtensions = new[]
+            {
+                // Standard formats
+                ".jpg", ".jpeg", ".png", ".bmp", ".gif",
+                // RAW formats
+                ".nef",           // Nikon
+                ".cr2", ".cr3",   // Canon
+                ".arw",           // Sony
+                ".dng",           // Adobe
+                ".raw", ".raf",   // Fuji
+                ".orf",           // Olympus
+                ".rw2",           // Panasonic
+                ".pef",           // Pentax
+                ".srw",           // Samsung
+                ".erf"            // Epson
+            };
                 int addedCount = 0;
 
                 foreach (var filePath in paths)

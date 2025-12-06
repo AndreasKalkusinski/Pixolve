@@ -38,5 +38,30 @@ public enum ImageFormat
     /// <summary>
     /// GIF format (.gif)
     /// </summary>
-    Gif
+    Gif,
+
+    /// <summary>
+    /// RAW format - Nikon (.nef)
+    /// </summary>
+    NikonRaw,
+
+    /// <summary>
+    /// RAW format - Canon (.cr2, .cr3)
+    /// </summary>
+    CanonRaw,
+
+    /// <summary>
+    /// RAW format - Sony (.arw)
+    /// </summary>
+    SonyRaw,
+
+    /// <summary>
+    /// RAW format - Adobe DNG (.dng)
+    /// </summary>
+    AdobeDng,
+
+    /// <summary>
+    /// RAW format - Generic/Other (.raw, .raf, .orf, .rw2, etc.)
+    /// </summary>
+    OtherRaw
 }

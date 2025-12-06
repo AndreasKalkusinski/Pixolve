@@ -20,10 +20,11 @@
 ## ✨ Features
 
 ### Core Functionality
+- 📷 **RAW Format Support**: Convert camera RAW files (NEF, CR2, ARW, DNG, etc.) to standard formats
 - 🖼️ **Multi-Format Support**: Convert between WebP, AVIF, PNG, and JPEG formats
 - 🔄 **Multi-Format Export**: Export a single image to multiple formats simultaneously
 - 🚀 **Batch Processing**: Convert hundreds of images at once with progress tracking
-- ⚡ **High Performance**: Powered by SkiaSharp for lightning-fast image processing
+- ⚡ **High Performance**: Powered by SkiaSharp and ImageMagick for lightning-fast processing
 - 📁 **Smart Organization**: Auto-creates organized output folders with proper naming
 
 ### User Interface
