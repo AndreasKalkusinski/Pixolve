@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-![Version](https://img.shields.io/badge/version-1.1.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.2.0-green.svg)
 
 **Pixolve** is a modern, cross-platform image conversion tool built with Avalonia UI and .NET 9. Convert your images to modern formats like WebP, AVIF, and more with an intuitive, blazing-fast interface.
 
@@ -77,33 +77,51 @@
 
 Visit the [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases) page to download the latest version for your platform:
 
+#### macOS (Recommended)
+
+**Option 1: DMG Installer**
+1. Download `Pixolve-v1.2.0-macOS.dmg` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+2. Double-click to mount the disk image
+3. Drag `Pixolve.app` to the Applications folder
+4. Launch from Applications (Right-click → "Open" on first launch)
+
+**Option 2: Automated Installer**
+```bash
+curl -fsSL https://raw.githubusercontent.com/AndreasKalkusinski/Pixolve/master/install-macos.sh | bash
+```
+
+**Option 3: ZIP Archive**
+1. Download `Pixolve-v1.2.0-macOS.zip`
+2. Extract and drag `Pixolve.app` to Applications
+3. Launch (Right-click → "Open" on first launch)
+
+> **Security Note**: On first launch, right-click the app and select "Open" to bypass Gatekeeper.
+
 #### Windows
-1. Download `Pixolve-vX.X.X-win-x64.zip`
-2. Extract the archive
+
+**Option 1: ZIP Archive**
+1. Download `Pixolve-v1.2.0-win-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+2. Extract the archive to your preferred location (e.g., `C:\Program Files\Pixolve`)
 3. Run `Pixolve.Desktop.exe`
+4. (Optional) Create a desktop shortcut
+
+> **Note**: Windows SmartScreen may show a warning on first run. Click "More info" → "Run anyway"
 
 #### Linux
-1. Download `Pixolve-vX.X.X-linux-x64.zip`
-2. Extract the archive
+
+**Option 1: ZIP Archive**
+1. Download `Pixolve-v1.2.0-linux-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+2. Extract: `unzip Pixolve-v1.2.0-linux-x64.zip`
 3. Make executable: `chmod +x Pixolve.Desktop`
 4. Run: `./Pixolve.Desktop`
 
-#### macOS
-
-**Option 1: DMG Installer (Recommended)**
-1. Download `Pixolve-vX.X.X-macOS.dmg`
-2. Double-click to mount the disk image
-3. Drag `Pixolve.app` to the Applications folder
-4. Eject the disk image
-5. Launch from Applications (Right-click → Open on first launch)
-
-**Option 2: ZIP Archive**
-1. Download `Pixolve-vX.X.X-macOS.zip`
-2. Extract the archive
-3. Drag `Pixolve.app` to Applications
-4. Launch (Right-click → Open on first launch)
-
-> **macOS Security Note**: On first launch, right-click the app and select "Open" to bypass Gatekeeper. Subsequent launches work with double-click.
+**Option 2: Install to /usr/local/bin**
+```bash
+sudo unzip Pixolve-v1.2.0-linux-x64.zip -d /usr/local/bin/pixolve
+sudo chmod +x /usr/local/bin/pixolve/Pixolve.Desktop
+# Run from anywhere
+/usr/local/bin/pixolve/Pixolve.Desktop
+```
 
 > **Note**: All binaries are self-contained and include the .NET runtime - no additional dependencies required!
 
