@@ -295,16 +295,25 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 - [x] Smart file naming with dimension suffix
 - [x] Cross-platform support (Windows, macOS, Linux)
 
-### ✅ Version 1.1 (Current)
+### ✅ Version 1.1 (Released)
 - [x] Dark Mode support
 - [x] Multilingual support (English/German)
 - [x] Multi-Format Export (one image → multiple formats)
 - [x] Improved UI layout and responsiveness
 - [x] Enhanced README with comprehensive documentation
 
-### 🚧 Version 1.2 (Planned)
+### ✅ Version 1.2 (Current - Released 2025-12-06)
+- [x] RAW camera format support (NEF, CR2, CR3, ARW, DNG, RAF, ORF, RW2, PEF, SRW, ERF)
+- [x] ImageMagick.NET integration for RAW processing
+- [x] Automatic EXIF orientation correction
+- [x] Version display in UI status bar
+- [x] Professional macOS installer with DMG
+- [x] Cross-platform builds (macOS, Windows, Linux)
+- [x] Comprehensive RAW format documentation
+
+### 🚧 Version 1.3 (Planned)
+- [ ] Auto-update checker
 - [ ] Compression statistics and reporting
-- [ ] Undo/Redo functionality
 - [ ] Image preview (before/after comparison)
 - [ ] More language support
 - [ ] Performance optimizations
@@ -339,6 +348,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [Avalonia UI](https://avaloniaui.net/) - Cross-platform XAML framework
 - Image processing powered by [SkiaSharp](https://github.com/mono/SkiaSharp) - High-performance 2D graphics
+- RAW format support via [ImageMagick.NET](https://github.com/dlemstra/Magick.NET) - Professional RAW image decoding
 - MVVM framework: [CommunityToolkit.Mvvm](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/)
 - Inspired by the need for a modern, cross-platform image converter
 

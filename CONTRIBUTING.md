@@ -30,7 +30,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ### Pull Requests
 
-1. **Fork the repo** and create your branch from `main`
+1. **Fork the repo** and create your branch from `master`
 2. **Follow the coding standards** (see below)
 3. **Add tests** if you're adding code that should be tested
 4. **Ensure the test suite passes** (`dotnet test`)
@@ -175,8 +175,8 @@ public async Task ConvertAsync_WithValidFile_ReturnsSuccess()
 
 ### Branches
 
-* `main` - Production-ready code
-* `develop` - Development branch
+* `master` - Production-ready code
+* `develop` - Development branch (if used)
 * `feature/xxx` - New features
 * `bugfix/xxx` - Bug fixes
 * `hotfix/xxx` - Urgent fixes
