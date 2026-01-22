@@ -5,7 +5,7 @@
 
 set -e
 
-VERSION="1.2.0"
+VERSION="1.3.1"
 APP_NAME="Pixolve"
 PROJECT_PATH="src/Pixolve.Desktop/Pixolve.Desktop.csproj"
 OUTPUT_DIR="publish/linux-x64"

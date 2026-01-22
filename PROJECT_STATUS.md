@@ -1,7 +1,7 @@
 # Pixolve - Project Status & Context
 
 **Last Updated**: 2025-12-06
-**Version**: 1.2.0
+**Version**: 1.3.1
 **Status**: Production Release ✅
 
 ## Quick Context

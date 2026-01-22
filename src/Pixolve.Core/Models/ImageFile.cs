@@ -24,6 +24,7 @@ public class ImageFile : INotifyPropertyChanged
     private int? _customQuality;
     private int? _customMaxPixelSize;
     private ImageFormat? _customTargetFormat;
+    private bool _isSelected = true; // Default: all images selected
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -184,6 +185,15 @@ public class ImageFile : INotifyPropertyChanged
     {
         get => _customTargetFormat;
         set => SetProperty(ref _customTargetFormat, value);
+    }
+
+    /// <summary>
+    /// Indicates if this image is selected for conversion
+    /// </summary>
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
     }
 
     /// <summary>

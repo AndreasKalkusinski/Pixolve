@@ -94,6 +94,29 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isLoading = false;
 
+    [ObservableProperty]
+    private bool _showOpenFolderButton = false;
+
+    [ObservableProperty]
+    private string _lastOutputDirectory = string.Empty;
+
+    [ObservableProperty]
+    private long _totalSizeBefore = 0;
+
+    [ObservableProperty]
+    private long _totalSizeAfter = 0;
+
+    [ObservableProperty]
+    private string _compressionStats = string.Empty;
+
+    [ObservableProperty]
+    private string _estimatedTimeRemaining = string.Empty;
+
+    [ObservableProperty]
+    private bool _isDraggingOver = false;
+
+    private System.Diagnostics.Stopwatch? _conversionStopwatch;
+
     public ObservableCollection<ImageFile> ImageFiles { get; } = new();
 
     public ObservableCollection<ImageFormatOption> AvailableFormats { get; } = new()
@@ -409,18 +432,18 @@ public partial class MainWindowViewModel : ViewModelBase
                     {
                         imageFile.PixelSizeBefore = $"{bitmap.Width} x {bitmap.Height}";
 
-                        // Generate thumbnail (max 50px)
-                        const int thumbnailSize = 50;
+                        // Generate thumbnail (max 300px for high-quality preview)
+                        const int thumbnailSize = 300;
                         var scale = Math.Min((float)thumbnailSize / bitmap.Width, (float)thumbnailSize / bitmap.Height);
                         var thumbnailWidth = (int)(bitmap.Width * scale);
                         var thumbnailHeight = (int)(bitmap.Height * scale);
 
                         var thumbnailInfo = new SKImageInfo(thumbnailWidth, thumbnailHeight);
-                        using var thumbnail = bitmap.Resize(thumbnailInfo, SKFilterQuality.Medium);
+                        using var thumbnail = bitmap.Resize(thumbnailInfo, SKFilterQuality.High);
                         if (thumbnail != null)
                         {
                             using var image = SKImage.FromBitmap(thumbnail);
-                            using var data = image.Encode(SKEncodedImageFormat.Png, 80);
+                            using var data = image.Encode(SKEncodedImageFormat.Png, 90);
                             imageFile.ThumbnailData = data.ToArray();
                         }
                     }
@@ -513,11 +536,33 @@ public partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
+            // Filter only selected images
+            var selectedImages = ImageFiles.Where(img => img.IsSelected).ToList();
+
+            if (!selectedImages.Any())
+            {
+                StatusMessage = "Keine Bilder ausgewählt. Bitte wählen Sie mindestens ein Bild aus.";
+                return;
+            }
+
             int successCount = 0;
             int failureCount = 0;
+            int currentIndex = 0;
+            int totalImages = selectedImages.Count;
 
-            foreach (var imageFile in ImageFiles)
+            // Reset statistics
+            TotalSizeBefore = 0;
+            TotalSizeAfter = 0;
+            CompressionStats = string.Empty;
+            EstimatedTimeRemaining = string.Empty;
+
+            // Start stopwatch for time estimation
+            _conversionStopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            foreach (var imageFile in selectedImages)
             {
+                currentIndex++;
+
                 if (_cancellationTokenSource.Token.IsCancellationRequested)
                 {
                     imageFile.Status = Localization.ImageStatusCancelled;
@@ -526,7 +571,31 @@ public partial class MainWindowViewModel : ViewModelBase
                 }
 
                 imageFile.Status = Localization.ImageStatusConverting;
-                StatusMessage = string.Format(Localization.StatusConverting, imageFile.FileName);
+
+                // Calculate estimated time remaining
+                if (_conversionStopwatch != null && currentIndex > 1)
+                {
+                    double elapsedSeconds = _conversionStopwatch.Elapsed.TotalSeconds;
+                    double averageSecondsPerImage = elapsedSeconds / (currentIndex - 1);
+                    double remainingImages = totalImages - currentIndex + 1;
+                    double estimatedSecondsRemaining = averageSecondsPerImage * remainingImages;
+
+                    var timeRemaining = TimeSpan.FromSeconds(estimatedSecondsRemaining);
+                    if (timeRemaining.TotalHours >= 1)
+                    {
+                        EstimatedTimeRemaining = $"≈ {(int)timeRemaining.TotalHours}h {timeRemaining.Minutes}m verbleibend";
+                    }
+                    else if (timeRemaining.TotalMinutes >= 1)
+                    {
+                        EstimatedTimeRemaining = $"≈ {(int)timeRemaining.TotalMinutes}m {timeRemaining.Seconds}s verbleibend";
+                    }
+                    else
+                    {
+                        EstimatedTimeRemaining = $"≈ {(int)timeRemaining.TotalSeconds}s verbleibend";
+                    }
+                }
+
+                StatusMessage = $"Konvertiere Bild {currentIndex}/{totalImages}: {imageFile.FileName} {EstimatedTimeRemaining}";
 
                 // Create settings for this specific image, using custom settings if available
                 var imageSettings = new ConversionSettings
@@ -594,6 +663,10 @@ public partial class MainWindowViewModel : ViewModelBase
                         imageFile.PixelSizeAfter = result.OutputDimensions ?? string.Empty;
                         imageFile.Status = Localization.ImageStatusSuccess;
                         successCount++;
+
+                        // Track compression statistics
+                        TotalSizeBefore += imageFile.FileSizeBefore;
+                        TotalSizeAfter += result.OutputSize;
                     }
                     else
                     {
@@ -605,7 +678,34 @@ public partial class MainWindowViewModel : ViewModelBase
                 ProgressValue++;
             }
 
-            StatusMessage = string.Format(Localization.StatusConversionComplete, successCount, failureCount);
+            // Calculate compression statistics
+            if (TotalSizeBefore > 0 && successCount > 0)
+            {
+                double compressionRatio = (1.0 - ((double)TotalSizeAfter / TotalSizeBefore)) * 100;
+                long savedBytes = TotalSizeBefore - TotalSizeAfter;
+
+                var beforeSize = FormatFileSize(TotalSizeBefore);
+                var afterSize = FormatFileSize(TotalSizeAfter);
+                var savedSize = FormatFileSize(savedBytes);
+
+                CompressionStats = $"{beforeSize} → {afterSize} (Einsparung: {savedSize}, {compressionRatio:F1}%)";
+                StatusMessage = $"{string.Format(Localization.StatusConversionComplete, successCount, failureCount)} | {CompressionStats}";
+            }
+            else
+            {
+                StatusMessage = string.Format(Localization.StatusConversionComplete, successCount, failureCount);
+            }
+
+            // Show "Open Folder" button and save the output directory
+            var actualOutputDir = string.IsNullOrWhiteSpace(OutputDirectory)
+                ? Path.Combine(SourcePath, "converted")
+                : OutputDirectory;
+
+            if (Directory.Exists(actualOutputDir))
+            {
+                LastOutputDirectory = actualOutputDir;
+                ShowOpenFolderButton = true;
+            }
         }
         catch (Exception ex)
         {
@@ -616,6 +716,34 @@ public partial class MainWindowViewModel : ViewModelBase
             IsConverting = false;
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenOutputFolder()
+    {
+        if (!string.IsNullOrWhiteSpace(LastOutputDirectory) && Directory.Exists(LastOutputDirectory))
+        {
+            try
+            {
+                // Cross-platform folder opening
+                if (OperatingSystem.IsWindows())
+                {
+                    System.Diagnostics.Process.Start("explorer.exe", LastOutputDirectory);
+                }
+                else if (OperatingSystem.IsMacOS())
+                {
+                    System.Diagnostics.Process.Start("open", LastOutputDirectory);
+                }
+                else if (OperatingSystem.IsLinux())
+                {
+                    System.Diagnostics.Process.Start("xdg-open", LastOutputDirectory);
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Fehler beim Öffnen des Ordners: {ex.Message}";
+            }
         }
     }
 
@@ -642,6 +770,59 @@ public partial class MainWindowViewModel : ViewModelBase
             ImageFiles.Remove(imageFile);
             StatusMessage = string.Format(Localization.StatusFileRemoved, imageFile.FileName);
         }
+    }
+
+    [RelayCommand]
+    private void ApplyWebPreset()
+    {
+        // Web optimiert: WebP, Qualität 80, Max 1920px
+        SelectedFormatOption = AvailableFormats.FirstOrDefault(f => f.Format == ImageFormat.WebP);
+        Quality = 80;
+        MaxPixelSize = 1920;
+        EnableResizing = true;
+        StatusMessage = "Voreinstellung 'Web optimiert' angewendet (WebP, Q80, 1920px)";
+    }
+
+    [RelayCommand]
+    private void ApplyQualityPreset()
+    {
+        // Maximale Qualität: PNG, Qualität 100, keine Größenbeschränkung
+        SelectedFormatOption = AvailableFormats.FirstOrDefault(f => f.Format == ImageFormat.Png);
+        Quality = 100;
+        MaxPixelSize = 0;
+        EnableResizing = false;
+        StatusMessage = "Voreinstellung 'Maximale Qualität' angewendet (PNG, Q100, Originalgröße)";
+    }
+
+    [RelayCommand]
+    private void ApplySizePreset()
+    {
+        // Minimale Größe: WebP, Qualität 60, Max 1280px
+        SelectedFormatOption = AvailableFormats.FirstOrDefault(f => f.Format == ImageFormat.WebP);
+        Quality = 60;
+        MaxPixelSize = 1280;
+        EnableResizing = true;
+        StatusMessage = "Voreinstellung 'Minimale Größe' angewendet (WebP, Q60, 1280px)";
+    }
+
+    [RelayCommand]
+    private void SelectAll()
+    {
+        foreach (var image in ImageFiles)
+        {
+            image.IsSelected = true;
+        }
+        StatusMessage = $"Alle {ImageFiles.Count} Bilder ausgewählt";
+    }
+
+    [RelayCommand]
+    private void DeselectAll()
+    {
+        foreach (var image in ImageFiles)
+        {
+            image.IsSelected = false;
+        }
+        StatusMessage = "Alle Bilder abgewählt";
     }
 
     public async Task HandleFilesDropped(string[] paths)
@@ -737,5 +918,23 @@ public partial class MainWindowViewModel : ViewModelBase
                 StatusMessage = $"Fehler beim Laden der Bilder: {ex.Message}";
             }
         }
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes == 0)
+            return "0 B";
+
+        string[] sizes = { "B", "KB", "MB", "GB" };
+        int order = 0;
+        double size = bytes;
+
+        while (size >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            size /= 1024;
+        }
+
+        return $"{size:0.##} {sizes[order]}";
     }
 }

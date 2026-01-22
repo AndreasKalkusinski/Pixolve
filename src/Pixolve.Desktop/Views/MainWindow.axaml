@@ -9,12 +9,14 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/pixolve-logo.ico"
         Title="Pixolve - Moderner Bild-Konverter"
-        Width="900" Height="650"
-        MinWidth="800" MinHeight="600"
+        Width="1280" Height="780"
+        MinWidth="900" MinHeight="700"
         DragDrop.AllowDrop="True">
 
     <Window.Resources>
         <converters:ByteArrayToImageConverter x:Key="ByteArrayToImageConverter"/>
+        <converters:BoolToThicknessConverter x:Key="BoolToThicknessConverter"/>
+        <converters:StatusToColorConverter x:Key="StatusToColorConverter"/>
     </Window.Resources>
 
     <Design.DataContext>
@@ -23,20 +25,50 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid Margin="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <!-- Keyboard Shortcuts -->
+    <Window.KeyBindings>
+        <!-- Ctrl+O: Browse folder -->
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding BrowseFolderCommand}"/>
+        <!-- Ctrl+L: Load images -->
+        <KeyBinding Gesture="Ctrl+L" Command="{Binding LoadImagesCommand}"/>
+        <!-- Ctrl+Enter: Convert all -->
+        <KeyBinding Gesture="Ctrl+Enter" Command="{Binding ConvertImagesCommand}"/>
+        <!-- Esc: Cancel conversion -->
+        <KeyBinding Gesture="Escape" Command="{Binding CancelConversionCommand}"/>
+    </Window.KeyBindings>
+
+    <Border Margin="8"
+            BorderThickness="{Binding IsDraggingOver, Converter={StaticResource BoolToThicknessConverter}}"
+            BorderBrush="{DynamicResource SystemAccentColor}"
+            CornerRadius="8"
+            Background="Transparent">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="{Binding Localization.AppTitle}" FontSize="28" FontWeight="Bold"/>
-            <TextBlock Text="{Binding Localization.AppSubtitle}" FontSize="14" Opacity="0.7"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{Binding Localization.AppTitle}" FontSize="28" FontWeight="Bold"/>
+                <TextBlock Text="{Binding Localization.AppSubtitle}" FontSize="14" Opacity="0.7"/>
+            </StackPanel>
+            <TextBlock Grid.Column="1"
+                       Text="{Binding AppVersion}"
+                       FontSize="14"
+                       Opacity="0.6"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Bottom"
+                       Margin="16,0,0,4"/>
+        </Grid>
 
         <!-- Source Selection & Settings -->
         <Grid Grid.Row="1" Margin="0,0,0,16">
@@ -66,8 +98,18 @@
 
                     <TextBlock Grid.Column="0" Text="{Binding Localization.SourceFolder}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBox Grid.Column="1" Text="{Binding SourcePath}" Watermark="{Binding Localization.SourceFolderPlaceholder}" VerticalAlignment="Center"/>
-                    <Button Grid.Column="2" Content="{Binding Localization.Browse}" Command="{Binding BrowseFolderCommand}" Margin="8,0,0,0" Padding="16,8"/>
-                    <Button Grid.Column="3" Content="{Binding Localization.LoadImages}" Command="{Binding LoadImagesCommand}" Margin="8,0,0,0" Padding="16,8" IsEnabled="{Binding !IsLoading}"/>
+                    <Button Grid.Column="2" Command="{Binding BrowseFolderCommand}" Margin="8,0,0,0" Padding="16,8">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" Width="16" Height="16"/>
+                            <TextBlock Text="{Binding Localization.Browse}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="3" Command="{Binding LoadImagesCommand}" Margin="8,0,0,0" Padding="16,8" IsEnabled="{Binding !IsLoading}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <PathIcon Data="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" Width="18" Height="18"/>
+                            <TextBlock Text="{Binding Localization.LoadImages}"/>
+                        </StackPanel>
+                    </Button>
                 </Grid>
             </Border>
 
@@ -82,6 +124,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" MinWidth="160"/>
@@ -90,8 +133,48 @@
                         <ColumnDefinition Width="*" MinWidth="140"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- Quick Presets -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="0,0,0,12" HorizontalAlignment="Center">
+                        <TextBlock Text="Schnell-Voreinstellungen:" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.7"/>
+                        <Button Command="{Binding ApplyWebPresetCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0" ToolTip.Tip="Web optimiert: WebP, Q80, 1920px">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" Width="14" Height="14"/>
+                                <TextBlock Text="Web"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ApplyQualityPresetCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0" ToolTip.Tip="Maximale Qualität: PNG, Q100, Originalgröße">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" Width="14" Height="14"/>
+                                <TextBlock Text="Qualität"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ApplySizePresetCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0" ToolTip.Tip="Minimale Größe: WebP, Q60, 1280px">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" Width="14" Height="14"/>
+                                <TextBlock Text="Größe"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Separator -->
+                        <Border Width="1" Height="20" Background="{DynamicResource SystemBaseLowColor}" Margin="8,0"/>
+
+                        <!-- Selection Buttons -->
+                        <Button Command="{Binding SelectAllCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0" ToolTip.Tip="Alle Bilder auswählen">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" Width="14" Height="14"/>
+                                <TextBlock Text="Alle"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding DeselectAllCommand}" Padding="8,4" FontSize="11" Margin="0,0,4,0" ToolTip.Tip="Alle Bilder abwählen">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <PathIcon Data="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" Width="14" Height="14"/>
+                                <TextBlock Text="Keine"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
                     <!-- Format & Qualität -->
-                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,12,0">
                         <TextBlock Text="{Binding Localization.FormatAndQuality}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
 
                         <TextBlock Text="{Binding Localization.Format}" FontSize="11" Margin="0,0,0,4"/>
@@ -119,7 +202,7 @@
                     </StackPanel>
 
                     <!-- Größe & Ausgabe -->
-                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,12,0">
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,12,0">
                         <TextBlock Text="{Binding Localization.SizeAndOutput}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
 
                         <TextBlock Text="{Binding Localization.MaxPixel}" FontSize="11" Margin="0,0,0,4"/>
@@ -139,12 +222,14 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Grid.Column="0" Text="{Binding OutputDirectory}" Watermark="{Binding Localization.OutputDirectoryWatermark}" FontSize="11" Margin="0,0,4,0"/>
-                            <Button Grid.Column="1" Content="..." Command="{Binding BrowseOutputFolderCommand}" Width="30" Padding="4"/>
+                            <Button Grid.Column="1" Command="{Binding BrowseOutputFolderCommand}" Width="34" Padding="6">
+                                <PathIcon Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" Width="16" Height="16"/>
+                            </Button>
                         </Grid>
                     </StackPanel>
 
                     <!-- Optionen -->
-                    <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,12,0">
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,12,0">
                         <TextBlock Text="{Binding Localization.Options}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
                         <CheckBox IsChecked="{Binding EnableResizing}" Content="{Binding Localization.EnableResizing}" FontSize="11" Margin="0,0,0,4"/>
                         <CheckBox IsChecked="{Binding OverwriteExisting}" Content="{Binding Localization.OverwriteExisting}" FontSize="11" Margin="0,0,0,4"/>
@@ -153,7 +238,7 @@
                     </StackPanel>
 
                     <!-- Darstellung -->
-                    <StackPanel Grid.Row="0" Grid.Column="3">
+                    <StackPanel Grid.Row="1" Grid.Column="3">
                         <TextBlock Text="{Binding Localization.Appearance}" FontSize="10" FontWeight="Bold" Opacity="0.6" Margin="0,0,0,8"/>
 
                         <TextBlock Text="{Binding Localization.Theme}" FontSize="11" Margin="0,0,0,4"/>
@@ -183,7 +268,7 @@
                     </StackPanel>
 
                     <!-- Multi-Format Export -->
-                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,12,0,0">
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,12,0,0">
                         <Separator Margin="0,0,0,12"/>
                         <CheckBox IsChecked="{Binding EnableMultiFormat}"
                                   Content="{Binding Localization.MultiFormatExport}"
@@ -226,9 +311,30 @@
                     Width="200">
                 <StackPanel Spacing="8">
                     <TextBlock Text="{Binding Localization.Actions}" FontWeight="Bold" Margin="0,0,0,4"/>
-                    <Button Content="{Binding Localization.ConvertAll}" Command="{Binding ConvertImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
-                    <Button Content="{Binding Localization.Cancel}" Command="{Binding CancelConversionCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding IsConverting}"/>
-                    <Button Content="{Binding Localization.ClearList}" Command="{Binding ClearImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}"/>
+                    <Button Command="{Binding ConvertImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <PathIcon Data="M8 5v14l11-7z" Width="16" Height="16"/>
+                            <TextBlock Text="{Binding Localization.ConvertAll}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding CancelConversionCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding IsConverting}">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <PathIcon Data="M6 6h12v12H6z" Width="16" Height="16"/>
+                            <TextBlock Text="{Binding Localization.Cancel}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding OpenOutputFolderCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsVisible="{Binding ShowOpenFolderButton}" Background="{DynamicResource SystemAccentColor}" Foreground="White">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <PathIcon Data="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" Width="16" Height="16" Foreground="White"/>
+                            <TextBlock Text="Ordner öffnen"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding ClearImagesCommand}" HorizontalAlignment="Stretch" Padding="12,8" IsEnabled="{Binding !IsConverting}">
+                        <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                            <PathIcon Data="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" Width="16" Height="16"/>
+                            <TextBlock Text="{Binding Localization.ClearList}"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Border>
         </Grid>
@@ -250,6 +356,17 @@
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
+                    <!-- Checkbox Column for Selection -->
+                    <DataGridTemplateColumn Header="✓" Width="40">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
                     <DataGridTemplateColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Preview}" Width="Auto" MinWidth="70">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -257,12 +374,30 @@
                                        Width="50" Height="50"
                                        Stretch="Uniform"
                                        HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                                       VerticalAlignment="Center">
+                                    <ToolTip.Tip>
+                                        <Image Source="{Binding ThumbnailData, Converter={StaticResource ByteArrayToImageConverter}}"
+                                               Width="300" Height="300"
+                                               Stretch="Uniform"/>
+                                    </ToolTip.Tip>
+                                </Image>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.FileName}" Binding="{Binding FileName}" Width="Auto" MinWidth="150"/>
-                    <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Status}" Binding="{Binding Status}" Width="Auto" MinWidth="120"/>
+
+                    <!-- Color-coded Status Column -->
+                    <DataGridTemplateColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Status}" Width="Auto" MinWidth="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Status}"
+                                           Foreground="{Binding Status, Converter={StaticResource StatusToColorConverter}}"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           Margin="4,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.Before}" Binding="{Binding FileSizeBeforeFormatted}" Width="Auto" MinWidth="80"/>
                     <DataGridTextColumn Header="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).Localization.After}" Binding="{Binding FileSizeAfterFormatted}" Width="Auto" MinWidth="80"/>
                     <DataGridTextColumn Header="%" Binding="{Binding CompressionRatioFormatted}" Width="Auto" MinWidth="60"/>
@@ -334,8 +469,10 @@
                          Height="8"
                          ShowProgressText="False"
                          IsVisible="{Binding IsLoading}"/>
-            <ProgressBar Height="8"
-                         IsIndeterminate="True"
+            <ProgressBar Minimum="0"
+                         Maximum="{Binding ProgressMaximum}"
+                         Value="{Binding ProgressValue}"
+                         Height="8"
                          ShowProgressText="False"
                          IsVisible="{Binding IsConverting}"/>
         </StackPanel>
@@ -353,15 +490,36 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" Text="{Binding Localization.StatusLabel}" FontWeight="Bold" Margin="0,0,8,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"/>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Localization.ImagesCount}" FontWeight="Bold" Margin="0,0,4,0"/>
-                        <TextBlock Text="{Binding ImageFiles.Count}" FontWeight="Bold"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding AppVersion}" Opacity="0.7" FontSize="11"/>
+
+                <!-- Status Message with clickable folder link -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="{Binding StatusMessage}" TextWrapping="Wrap"/>
+
+                    <!-- Clickable folder link (only visible when folder exists) -->
+                    <Button Command="{Binding OpenOutputFolderCommand}"
+                            IsVisible="{Binding ShowOpenFolderButton}"
+                            Padding="4,2"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip.Tip="Ordner öffnen">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+                                      Width="14" Height="14"
+                                      Foreground="{DynamicResource SystemAccentColor}"/>
+                            <TextBlock Text="{Binding LastOutputDirectory}"
+                                       Foreground="{DynamicResource SystemAccentColor}"
+                                       TextDecorations="Underline"
+                                       FontSize="11"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <TextBlock Text="{Binding Localization.ImagesCount}" FontWeight="Bold" Margin="0,0,4,0"/>
+                    <TextBlock Text="{Binding ImageFiles.Count}" FontWeight="Bold"/>
                 </StackPanel>
             </Grid>
         </Border>
-    </Grid>
+        </Grid>
+    </Border>
 </Window>

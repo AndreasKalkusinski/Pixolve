@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-9.0-purple.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)
-![Version](https://img.shields.io/badge/version-1.2.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.3.1-green.svg)
 
 **Pixolve** is a modern, cross-platform image conversion tool built with Avalonia UI and .NET 9. Convert your images to modern formats like WebP, AVIF, and more with an intuitive, blazing-fast interface.
 
@@ -32,7 +32,10 @@
 - 🌓 **Dark Mode**: Full dark/light theme support with system integration
 - 🌍 **Multilingual**: English and German language support
 - 🎯 **Drag & Drop**: Intuitive file and folder handling
-- 👁️ **Live Preview**: Thumbnail previews in the file list
+- 👁️ **High-Quality Preview**: Sharp 300x300px thumbnail tooltips on hover
+- 📂 **Quick Folder Access**: Clickable output folder link in status bar
+- 🎨 **Color-Coded Status**: Visual feedback with green (success), red (error), orange (in-progress), gray (waiting)
+- ✅ **Batch Selection**: Quick select/deselect all buttons for efficient batch operations
 - 📊 **Real-time Statistics**: See file sizes, compression ratios, and progress
 
 ### Advanced Features
@@ -80,7 +83,7 @@ Visit the [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases) pag
 #### macOS (Recommended)
 
 **Option 1: DMG Installer**
-1. Download `Pixolve-v1.2.0-macOS.dmg` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+1. Download `Pixolve-v1.3.1-macOS.dmg` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
 2. Double-click to mount the disk image
 3. Drag `Pixolve.app` to the Applications folder
 4. Launch from Applications (Right-click → "Open" on first launch)
@@ -91,7 +94,7 @@ curl -fsSL https://raw.githubusercontent.com/AndreasKalkusinski/Pixolve/master/i
 ```
 
 **Option 3: ZIP Archive**
-1. Download `Pixolve-v1.2.0-macOS.zip`
+1. Download `Pixolve-v1.3.1-macOS.zip`
 2. Extract and drag `Pixolve.app` to Applications
 3. Launch (Right-click → "Open" on first launch)
 
@@ -100,7 +103,7 @@ curl -fsSL https://raw.githubusercontent.com/AndreasKalkusinski/Pixolve/master/i
 #### Windows
 
 **Option 1: ZIP Archive**
-1. Download `Pixolve-v1.2.0-win-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+1. Download `Pixolve-v1.3.1-win-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
 2. Extract the archive to your preferred location (e.g., `C:\Program Files\Pixolve`)
 3. Run `Pixolve.Desktop.exe`
 4. (Optional) Create a desktop shortcut
@@ -110,14 +113,14 @@ curl -fsSL https://raw.githubusercontent.com/AndreasKalkusinski/Pixolve/master/i
 #### Linux
 
 **Option 1: ZIP Archive**
-1. Download `Pixolve-v1.2.0-linux-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
-2. Extract: `unzip Pixolve-v1.2.0-linux-x64.zip`
+1. Download `Pixolve-v1.3.1-linux-x64.zip` from [Releases](https://github.com/AndreasKalkusinski/Pixolve/releases/latest)
+2. Extract: `unzip Pixolve-v1.3.1-linux-x64.zip`
 3. Make executable: `chmod +x Pixolve.Desktop`
 4. Run: `./Pixolve.Desktop`
 
 **Option 2: Install to /usr/local/bin**
 ```bash
-sudo unzip Pixolve-v1.2.0-linux-x64.zip -d /usr/local/bin/pixolve
+sudo unzip Pixolve-v1.3.1-linux-x64.zip -d /usr/local/bin/pixolve
 sudo chmod +x /usr/local/bin/pixolve/Pixolve.Desktop
 # Run from anywhere
 /usr/local/bin/pixolve/Pixolve.Desktop
@@ -302,7 +305,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 - [x] Improved UI layout and responsiveness
 - [x] Enhanced README with comprehensive documentation
 
-### ✅ Version 1.2 (Current - Released 2025-12-06)
+### ✅ Version 1.2 (Released 2025-12-05)
 - [x] RAW camera format support (NEF, CR2, CR3, ARW, DNG, RAF, ORF, RW2, PEF, SRW, ERF)
 - [x] ImageMagick.NET integration for RAW processing
 - [x] Automatic EXIF orientation correction
@@ -311,7 +314,14 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 - [x] Cross-platform builds (macOS, Windows, Linux)
 - [x] Comprehensive RAW format documentation
 
-### 🚧 Version 1.3 (Planned)
+### ✅ Version 1.3 (Current - Released 2025-12-06)
+- [x] High-quality thumbnail preview (300x300px sharp tooltips)
+- [x] Clickable output folder link in status bar
+- [x] Color-coded status indicators (green/red/orange/gray)
+- [x] Select All / Deselect All buttons for batch operations
+- [x] Enhanced user experience and visual feedback
+
+### 🚧 Version 1.4 (Planned)
 - [ ] Auto-update checker
 - [ ] Compression statistics and reporting
 - [ ] Image preview (before/after comparison)

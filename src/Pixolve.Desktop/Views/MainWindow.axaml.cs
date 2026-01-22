@@ -23,6 +23,24 @@ public partial class MainWindow : Window
         // Set up drag & drop
         AddHandler(DragDrop.DropEvent, Drop);
         AddHandler(DragDrop.DragOverEvent, DragOver);
+        AddHandler(DragDrop.DragLeaveEvent, DragLeave);
+        AddHandler(DragDrop.DragEnterEvent, DragEnter);
+    }
+
+    private void DragEnter(object? sender, DragEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            viewModel.IsDraggingOver = true;
+        }
+    }
+
+    private void DragLeave(object? sender, DragEventArgs e)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            viewModel.IsDraggingOver = false;
+        }
     }
 
     private void DragOver(object? sender, DragEventArgs e)
@@ -41,15 +59,20 @@ public partial class MainWindow : Window
 
     private async void Drop(object? sender, DragEventArgs e)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
-        if (e.Data.Contains(DataFormats.Files))
+        if (DataContext is MainWindowViewModel vm)
         {
-            var files = e.Data.GetFiles()?.Select(f => f.Path.LocalPath).ToArray();
+            vm.IsDraggingOver = false;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            if (e.Data.Contains(DataFormats.Files))
+            {
+                var files = e.Data.GetFiles()?.Select(f => f.Path.LocalPath).ToArray();
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            if (files != null && files.Length > 0 && DataContext is MainWindowViewModel viewModel)
-            {
-                await viewModel.HandleFilesDropped(files);
+                if (files != null && files.Length > 0)
+                {
+                    await vm.HandleFilesDropped(files);
+                }
             }
         }
     }
